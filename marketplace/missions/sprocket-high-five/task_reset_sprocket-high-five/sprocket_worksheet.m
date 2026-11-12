@@ -160,35 +160,33 @@
 % Task 12: type your code below this line.
 
 %%
-%[text] ## Task 13. Solve every point with a for loop
-%[text] **Background:** If each search starts from the previous answer, neighbouring answers stay close together, and the knee never flips. This idea is called a *warm start*.
-%[text] **The function:** the loop calls `solve` once for each row of `pawPath`. The targets, outputs and initial guesses keep their roles between calls, so only the numbers change.
+%[text] ## Task 13. Solve every point with a for loop and plot the path
+%[text] **Background:** If each search starts from the previous answer, neighbouring answers stay close together, and the knee never flips. This idea is called a *warm start*. A figure shows at a glance whether the result is smooth.
+%[text] **The function:** the loop calls `solve` once for each row of `pawPath`. The targets, outputs and initial guesses keep their roles between calls, so only the numbers change. `plot` then draws one line for each column of `qPath`, and `legend` labels the lines.
 %[text] **Syntax:**
 %[text] ```matlabCodeExample
 %[text] for k = 1:n
 %[text]     answer = solve(ks, targetRow, guess);
 %[text]     % store the answer, and use it as the next guess
 %[text] end
+%[text] plot(s, qPath)
+%[text] legend(name1, name2, name3)
 %[text] ```
-%[text] **Why:** The result is a smooth list of joint angles that takes the paw from the ready stance to the pad.
+%[text] **Why:** The result is a smooth list of joint angles that takes the paw from the ready stance to the pad. A sudden jump in a line of the figure would mean that a joint flipped between two neighbouring points.
 %[text] **Your task:** Ada gives you the task in the chat. Type your code below, then run this section with `Ctrl+Enter`.
 % Task 13: type your code below this line.
 
 %%
-%[text] ## Task 14. Plot the path and replay the high-five with viewSolution
-%[text] **Background:** A figure shows at a glance whether the planned move is smooth. The viewer is different: it shows one pose, the one from the most recent `solve`, and it does not play a move on its own. To see Sprocket move, you show the poses of the path one after the other, like the pages of a flip book.
-%[text] **The function:** `plot` draws one line for each column of `qPath`, and `legend` labels the lines. `viewSolution` redraws the viewer with the pose from the most recent `solve`. A loop that calls `solve` and then `viewSolution` for every point of the path plays the move. Each `solve` starts from the answer that you stored in `qPath`, so it finds the same pose again at once. `pause(0.1)` waits a tenth of a second so that you can see each pose.
+%[text] ## Task 14. Play the high-five as a simulation and save it with smwritevideo
+%[text] **Background:** The viewer of the solver shows one pose at a time, so it cannot play the move. To see Sprocket move, you play the path in a *simulation*. A simulation steps through time, and Multibody Explorer animates every step.
+%[text] In a simulation, a joint follows a *motion input*: a signal that tells the joint which angle to take at each moment. The mission comes with a helper function, `sprocket_play_path`, that prepares this for you. It imports Sprocket a second time as a model named `SprocketPlayback`. It feeds the three columns of `qPath` to the three leg joints, holds every other joint still and runs the simulation. Your solver and the model `Sprocket` stay as they are.
+%[text] **The function:** `sprocket_play_path` is a helper function of this mission, not a MATLAB function. You give it the URDF file and the path, and it returns the name of the model that it simulated. To read how it works, type `edit sprocket_play_path`. `smwritevideo` is a Simscape Multibody function. It saves the animation of the most recent simulation of a model as a video file in the current folder. Multibody Explorer must be open when you call it.
 %[text] **Syntax:**
 %[text] ```matlabCodeExample
-%[text] plot(s, qPath)
-%[text] legend(name1, name2, name3)
-%[text] for k = 1:n
-%[text]     solve(ks, targetRow, guessRow);
-%[text]     viewSolution(ks);
-%[text]     pause(seconds);
-%[text] end
+%[text] modelName = sprocket_play_path(urdfFile, qPath)
+%[text] smwritevideo(modelName, videoName)
 %[text] ```
-%[text] **Why:** A sudden jump in a line would mean that a joint flipped between two neighbouring points. The replay shows the moment that the whole mission was for: Sprocket raises his paw from the ready stance to the pad.
+%[text] **Why:** This is how robot motion is planned in practice: a solver works out the joint angles once, and a simulation plays them. The video is the high-five that the whole mission was for, and you can share it.
 %[text] **Your task:** Ada gives you the task in the chat. Type your code below, then run this section with `Ctrl+Enter`.
 % Task 14: type your code below this line.
 
@@ -251,14 +249,15 @@
 %[text] pawPath = (1-s).*pawStance(:)' + s.*padPosition(:)';
 %[text] qPath = zeros(n,3); guess = [0 40 -80];
 %[text] ```
-%[text] **Task 13. Solve every point with a for loop**
+%[text] **Task 13. Solve every point with a for loop and plot the path**
 %[text] ```matlabCodeExample
 %[text] for k = 1:n, qk = solve(ks,pawPath(k,:),guess); qPath(k,:) = qk(:)'; guess = qk(:)'; end
-%[text] ```
-%[text] **Task 14. Plot the path and replay the high-five with viewSolution**
-%[text] ```matlabCodeExample
 %[text] plot(s,qPath); legend("abduct","pitch","knee")
-%[text] for k = 1:n, solve(ks,pawPath(k,:),qPath(k,:)); viewSolution(ks); pause(0.1); end
+%[text] ```
+%[text] **Task 14. Play the high-five as a simulation and save it with smwritevideo**
+%[text] ```matlabCodeExample
+%[text] playback = sprocket_play_path(urdfFile,qPath)
+%[text] smwritevideo(playback,"sprocket_video")
 %[text] ```
 
 %[appendix]{"version":"1.0"}

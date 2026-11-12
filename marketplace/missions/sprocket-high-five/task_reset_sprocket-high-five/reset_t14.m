@@ -1,4 +1,4 @@
-% Ready for Task 14: the state after Task 13 (Solve every point with a for loop).
+% Ready for Task 14: the state after Task 13 (Solve every point with a for loop and plot the path).
 run("reset_t13.m");
 
 for k = 1:n
@@ -7,3 +7,4 @@ for k = 1:n
     guess = qk(:)';
 end
 clear k qk
+figure; plot(s, qPath); legend("abduct", "pitch", "knee");

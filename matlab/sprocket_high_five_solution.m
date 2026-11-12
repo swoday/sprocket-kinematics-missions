@@ -75,13 +75,12 @@ ylabel("Joint angle (deg)")
 legend("fl\_hip\_abduct", "fl\_hip\_pitch", "fl\_knee", "Location", "best")
 title("Sprocket: joint angles for the high-five")
 
-% The viewer shows one pose: the one from the most recent solve. To see the
-% move, replay the path. Each solve starts from the stored answer.
-for k = 1:n
-    solve(ks, pawPath(k, :), qPath(k, :));
-    viewSolution(ks);
-    pause(0.1);
-end
+% The viewer of the solver shows one pose, so it cannot play the move. The
+% helper of the mission plays the path as a simulation of a second model,
+% SprocketPlayback, and smwritevideo saves the animation as a video. The
+% mission setup copies the helper into the workspace folder.
+playback = sprocket_play_path(urdfFile, qPath);
+smwritevideo(playback, "sprocket_video");
 
 %% Bonus. Measure from the pad instead of from the world
 % Frame variables can relate any two frames. Measured from the pad, "paw on

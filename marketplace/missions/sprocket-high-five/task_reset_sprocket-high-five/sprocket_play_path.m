@@ -11,12 +11,14 @@ function mdl = sprocket_play_path(urdfFile, qPath, moveTime)
 %
 %   To save the move as a video, simulate first with this function, then type:
 %
-%       smwritevideo(mdl, "sprocket_high_five")
+%       smwritevideo(mdl, "sprocket_video")
 %
 %   Why a second model: the KinematicsSolver object of the mission keeps
 %   working on the model named Sprocket, which this function does not change.
 %
-%   Experimental. Not part of the mission yet.
+%   This is a helper function of the mission "Teach a Robot Dog to High-Five
+%   with KinematicsSolver". The mission setup copies it into your workspace
+%   folder. It is not a MATLAB or Simscape Multibody function.
 
 arguments
     urdfFile (1,1) string
@@ -130,5 +132,4 @@ end
 sim(mdl);
 
 fprintf("The move is in Multibody Explorer. Press Play there to see it again.\n");
-fprintf("To save it as a video, type: smwritevideo(""%s"", ""sprocket_high_five"")\n", mdl);
 end

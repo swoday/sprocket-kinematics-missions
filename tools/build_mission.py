@@ -35,7 +35,7 @@ PROJECT = Path(__file__).resolve().parent.parent
 MISSION = PROJECT / "marketplace" / "missions" / "sprocket-high-five"
 RESET = MISSION / "task_reset_sprocket-high-five"
 
-VERSION = "3.2.1"
+VERSION = "3.3.0"
 WORKSHEET_NAME = "sprocket_worksheet.m"     # the plain text live script that ships in the reset folder
 LEARNER_SCRIPT = "sprocket_high_five.m"     # the name of the learner's copy in the workspace folder
 
@@ -79,7 +79,7 @@ app:
   difficulty: beginner
   estimated_minutes: 60
   products: [MATLAB, Simulink, Simscape, Simscape Multibody]
-  topics: [kinematics, KinematicsSolver, forward kinematics, inverse kinematics, URDF import, initial guesses]
+  topics: [kinematics, KinematicsSolver, forward kinematics, inverse kinematics, URDF import, initial guesses, simulation playback]
   status: draft
   learner_visible: true
   tile_order: 10
@@ -97,6 +97,8 @@ learning_outcomes:
     description: Pose and solve an inverse kinematics problem and read its status flag.
   - id: lo06
     description: Use initial guesses to choose between multiple solutions, check a solution against joint limits, and solve a smooth path.
+  - id: lo07
+    description: Play a solved joint path as a simulation of the model and save the animation as a video.
 
 setup:
   script: "setup_sprocket_high_five.m"
@@ -109,8 +111,11 @@ setup:
     paw centre must reach. It also copies the live script sprocket_high_five.m
     into the learner workspace, opens it in the Live Editor, and leaves its
     full path in the variable scriptFile. The live script holds the
-    instructions and an empty code area for every task. No model is created
-    and no solver exists yet.
+    instructions and an empty code area for every task. It also copies the
+    helper function sprocket_play_path.m into the learner workspace and puts
+    that folder on the MATLAB path. The learner calls the helper in the last
+    task to play the solved path as a simulation. No model is created and no
+    solver exists yet.
     Construction variables are cleared. Run via run_matlab_file at session
     start.
 
@@ -129,6 +134,9 @@ runtime_validation:
       - type: matlab_expression
         description: The live script was copied into the workspace
         code: "isfile(scriptFile)"
+      - type: matlab_expression
+        description: The playback helper is on the MATLAB path
+        code: "exist('sprocket_play_path', 'file') == 2"
       - type: workspace_absent
         name: cadFolder
   resets:
@@ -196,6 +204,8 @@ discovery:
       Sprocket. Use bdroot or find_system('type','block_diagram') to discover
       it, or read the ModelName property of the learner's KinematicsSolver
       object once it exists. Use the discovered name in every block path.
+      In the last task a second model named SprocketPlayback exists. It is
+      the copy that the helper function simulates, not the learner's model.
 
 # Notes for the tutor (Ada):
 #
@@ -238,8 +248,15 @@ discovery:
 #   waits a long time after every command loses the thread.
 # - In MATLAB means the code area of the task in the live script. In
 #   Simulink means the window that shows the Sprocket block diagram.
-# - After every solve the learner looks at Sprocket with viewSolution. If
-#   they skip it, remind them, because seeing the pose is the point.
+# - After every single solve the learner looks at Sprocket with
+#   viewSolution. If they skip it, remind them, because seeing the pose is
+#   the point. The viewer shows one pose only and cannot play a move.
+# - The last task plays the whole path. sprocket_play_path is a helper
+#   function of this mission, not a MATLAB function. It imports Sprocket a
+#   second time as SprocketPlayback, drives the three leg joints with qPath
+#   through motion inputs and simulates. smwritevideo then saves the
+#   animation as a video. The learner does not have to build this by hand.
+#   If they ask how it works, open the helper with them and explain it.
 # - Ask fair questions only. A fair question has one idea, and the learner
 #   can answer it from what this mission has already shown them or from
 #   everyday experience. Ask one question at a time. If the learner

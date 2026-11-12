@@ -454,27 +454,41 @@ TASKS = [
                "qPath = zeros(n, 3); guess = [0 40 -80];"],
     ),
     dict(
-        title="Solve every point with a for loop", where="MATLAB", lo=["lo06"], involves=["command", "file_edit"],
+        title="Solve every point with a for loop and plot the path", where="MATLAB", lo=["lo06"],
+        involves=["command", "file_edit", "output_interpretation"],
         background="""If each search starts from the previous answer, neighbouring answers stay close together,
-        and the knee never flips. This idea is called a *warm start*.""",
+        and the knee never flips. This idea is called a *warm start*. A figure shows at a glance whether the
+        result is smooth.""",
         function="""the loop calls `solve` once for each row of `pawPath`. The targets, outputs and initial guesses
-        keep their roles between calls, so only the numbers change.""",
-        syntax=["for k = 1:n", "    answer = solve(ks, targetRow, guess);", "    % store the answer, and use it as the next guess", "end"],
-        why="the result is a smooth list of joint angles that takes the paw from the ready stance to the pad.",
+        keep their roles between calls, so only the numbers change. `plot` then draws one line for each column of
+        `qPath`, and `legend` labels the lines.""",
+        syntax=["for k = 1:n", "    answer = solve(ks, targetRow, guess);", "    % store the answer, and use it as the next guess", "end",
+                "plot(s, qPath)", "legend(name1, name2, name3)"],
+        why="""the result is a smooth list of joint angles that takes the paw from the ready stance to the pad. A
+        sudden jump in a line of the figure would mean that a joint flipped between two neighbouring points.""",
         task="""solve the inverse kinematics at every point of `pawPath`, store each answer as a row of `qPath`,
-        and use it as the guess for the next point.""",
-        commands=[LOOP_CMD],
+        and use it as the guess for the next point. Then draw the three joint angles along the path in a figure
+        with a legend.""",
+        commands=[LOOP_CMD, 'plot(s,qPath); legend("abduct","pitch","knee")'],
+        question="Look at the three lines in your figure. Are they smooth, or does any line jump suddenly?",
         checks=[
             ("evaluate_matlab_code", """qPath is numeric with three columns and at least 15 rows; its first row is
              within 0.5 degree of [0 40 -80] and its last row within 0.5 degree of [17.82 -14.45 -103.08]; the
              knee column is negative and inside -160 to +5 on every row; no joint jumps by more than about 20
              degrees between consecutive rows"""),
+            ("evaluate_matlab_code", """inspect all open figures, not only gcf, and find one with a legend and at
+             least three plotted lines whose values match the three columns of the current qPath"""),
+            ("confirm", """The learner says that the three lines are smooth, with no sudden jump. Share the
+             takeaway: a jump would mean that the knee flipped between two neighbouring points, and starting each
+             search from the previous answer is what prevents it."""),
         ],
-        description="qPath holds a smooth joint-angle path from the ready stance to the high-five pose.",
+        description="qPath holds a smooth joint-angle path from the ready stance to the high-five pose, and a figure shows it.",
         h2="""If MATLAB reports an error inside the loop, check that the roles are still in place: the paw
-        translation as targets, and the leg angles as outputs and as initial guesses.""",
-        h3="""When it works, nothing is printed. The last row, `qPath(end,:)`, should be close to 17.8, -14.5 and
-        -103.1 degrees.""",
+        translation as targets, and the leg angles as outputs and as initial guesses. The names in `legend` are
+        in the same order as the columns of `qPath`: hip abduction, hip pitch, knee.""",
+        h3="""When the loop works, nothing is printed. The last row, `qPath(end,:)`, should be close to 17.8,
+        -14.5 and -103.1 degrees. The figure shows three smooth lines, and the knee line stays below zero from
+        start to end.""",
         reset=[
             "for k = 1:n",
             "    qk = solve(ks, pawPath(k, :), guess);",
@@ -482,48 +496,54 @@ TASKS = [
             "    guess = qk(:)';",
             "end",
             "clear k qk",
+            'figure; plot(s, qPath); legend("abduct", "pitch", "knee");',
         ],
     ),
     dict(
-        title="Plot the path and replay the high-five with viewSolution", where="MATLAB", lo=["lo06"],
+        title="Play the high-five as a simulation and save it with smwritevideo", where="MATLAB", lo=["lo07"],
         involves=["command", "output_interpretation"],
-        background="""A figure shows at a glance whether the planned move is smooth. The viewer is different: it
-        shows one pose, the one from the most recent `solve`, and it does not play a move on its own. To see
-        Sprocket move, you show the poses of the path one after the other, like the pages of a flip book.""",
-        function="""`plot` draws one line for each column of `qPath`, and `legend` labels the lines. `viewSolution`
-        redraws the viewer with the pose from the most recent `solve`. A loop that calls `solve` and then
-        `viewSolution` for every point of the path plays the move. Each `solve` starts from the answer that you
-        stored in `qPath`, so it finds the same pose again at once. `pause(0.1)` waits a tenth of a second so that
-        you can see each pose.""",
-        syntax=["plot(s, qPath)", "legend(name1, name2, name3)", "for k = 1:n", "    solve(ks, targetRow, guessRow);",
-                "    viewSolution(ks);", "    pause(seconds);", "end"],
-        why="""a sudden jump in a line would mean that a joint flipped between two neighbouring points. The replay
-        shows the moment that the whole mission was for: Sprocket raises his paw from the ready stance to the pad.""",
-        task="""draw the three joint angles along the path in a figure with a legend. Then replay the move in the
-        viewer: for every point of the path, solve again with the stored answer as the guess, show the pose and
-        pause briefly. Place the Multibody Explorer window where you can see it before you run the section.""",
-        commands=['plot(s,qPath); legend("abduct","pitch","knee")',
-                  "for k = 1:n, solve(ks,pawPath(k,:),qPath(k,:)); viewSolution(ks); pause(0.1); end"],
-        question="Look at the three lines in your figure. Are they smooth, or does any line jump suddenly?",
+        background="""The viewer of the solver shows one pose at a time, so it cannot play the move. To see
+        Sprocket move, you play the path in a *simulation*. A simulation steps through time, and Multibody Explorer
+        animates every step.
+
+        In a simulation, a joint follows a *motion input*: a signal that tells the joint which angle to take at
+        each moment. The mission comes with a helper function, `sprocket_play_path`, that prepares this for you.
+        It imports Sprocket a second time as a model named `SprocketPlayback`. It feeds the three columns of
+        `qPath` to the three leg joints, holds every other joint still and runs the simulation. Your solver and
+        the model `Sprocket` stay as they are.""",
+        function="""`sprocket_play_path` is a helper function of this mission, not a MATLAB function. You give it
+        the URDF file and the path, and it returns the name of the model that it simulated. To read how it works,
+        type `edit sprocket_play_path`. `smwritevideo` is a Simscape Multibody function. It saves the animation of
+        the most recent simulation of a model as a video file in the current folder. Multibody Explorer must be
+        open when you call it.""",
+        syntax=["modelName = sprocket_play_path(urdfFile, qPath)", "smwritevideo(modelName, videoName)"],
+        why="""this is how robot motion is planned in practice: a solver works out the joint angles once, and a
+        simulation plays them. The video is the high-five that the whole mission was for, and you can share it.""",
+        task="""play the path as a simulation with the helper function, and store the model name that it returns
+        in `playback`. Watch Sprocket give the high-five in Multibody Explorer. Then save the animation as a video
+        named `sprocket_video`.""",
+        commands=["playback = sprocket_play_path(urdfFile,qPath)", 'smwritevideo(playback,"sprocket_video")'],
+        question="Watch the paw in Multibody Explorer. Does it travel to the pad in a straight line or in a curve?",
         checks=[
-            ("evaluate_matlab_code", """inspect all open figures, not only gcf, and find one with a legend and at
-             least three plotted lines whose values match the three columns of the current qPath"""),
-            ("confirm", """The learner says that the three lines are smooth, with no sudden jump, and that they saw
-             Sprocket raise his paw to the pad in the viewer. If the learner did not see the paw move, ask them to
-             place the Multibody Explorer window next to MATLAB and to run the replay loop again, with `pause(0.3)`
-             if the move was too fast to see. Share the takeaway: a jump would mean that the knee flipped between two
-             neighbouring points, and starting each search from the previous answer is what prevents it. Then
-             congratulate the learner, because they have just watched Sprocket give a high-five, and close with a
-             short summary of what they did: import, solver, frame variables, forward kinematics, inverse
-             kinematics, initial guess, path."""),
+            ("evaluate_matlab_code", """the model SprocketPlayback is loaded, so bdIsLoaded("SprocketPlayback") is
+             true, and the current folder holds a video file whose name starts with sprocket_video, so
+             dir("sprocket_video.*") is not empty. If the video is missing, remind the learner that Multibody
+             Explorer must stay open, and ask them to call smwritevideo again"""),
+            ("confirm", """The learner says that the paw travels in a straight line, or very close to one. Share
+             the takeaway: the path was planned as a straight line between two paw positions, and the solver
+             found the joint angles that keep the paw on it. Then congratulate the learner, because they have
+             just watched Sprocket give a high-five, and close with a short summary of what they did: import,
+             solver, frame variables, forward kinematics, inverse kinematics, initial guess, path, simulation
+             and video."""),
         ],
-        description="A figure shows the three joint angles along the path, and the learner has watched Sprocket raise his paw to the pad in the viewer.",
-        h2="""The names in `legend` are in the same order as the columns of `qPath`: hip abduction, hip pitch,
-        knee. The viewer shows one pose for each call of `viewSolution`, so the replay loop needs `solve`, then
-        `viewSolution`, then `pause` for every point. If the move is too fast to see, use `pause(0.3)`.""",
-        h3="""A figure window opens with three smooth lines, and the knee line stays below zero from start to
-        end. In the viewer, Sprocket lifts his front-left paw from the ready stance and presses it against the
-        round pad, in 25 small steps.""",
-        reset=['figure; plot(s, qPath); legend("abduct", "pitch", "knee");'],
+        description="The learner has played the path as a simulation, watched Sprocket give a high-five and saved the move as a video.",
+        h2="""If MATLAB says that every row of `qPath` is the same, the path is not solved yet. Run the loop of
+        the previous task again, then call `sprocket_play_path` again. `smwritevideo` needs the Multibody
+        Explorer window of `SprocketPlayback`, so keep that window open until the video is saved.""",
+        h3="""Multibody Explorer opens, and Sprocket lifts his front-left paw from the ready stance to the round
+        pad in about two seconds. To see the move again, press the play button in Multibody Explorer. After
+        `smwritevideo`, the current folder holds a file named `sprocket_video` with a video extension, for example
+        `sprocket_video.avi`.""",
+        reset=[],
     ),
 ]

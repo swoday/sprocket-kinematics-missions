@@ -6,11 +6,11 @@ A marketplace for the [Interactive Missions](https://github.com/matlab/agentic-l
 
 **Teach a Robot Dog to High-Five with KinematicsSolver**
 
-The learner imports Sprocket, a robot dog built as a real CAD assembly, into Simscape Multibody and poses him with `simscape.multibody.KinematicsSolver`. It has 14 tasks and takes about 60 minutes. It is written for people who know MATLAB and have no Simscape Multibody, robotics or CAD background. Every task gives you four things: the background, the function that you need with its general syntax, why you need it, and the task itself.
+The learner imports Sprocket, a robot dog built as a real CAD assembly, into Simscape Multibody and poses him with `simscape.multibody.KinematicsSolver`. In the last task, the solved move plays as a simulation and is saved as a video. It has 14 tasks and takes about 60 minutes. It is written for people who know MATLAB and have no Simscape Multibody, robotics or CAD background. Every task gives you four things: the background, the function that you need with its general syntax, why you need it, and the task itself.
 
 You work in a live script. When the mission starts, `sprocket_high_five.m` opens in the Live Editor. It has one section for each task, with the background, the function and an empty code area. The tutor gives you the task in the chat. You type your code in the section, run it, and tell the tutor. You can ask the tutor for a hint at any time: the first hint of every task explains the function again and gives the exact commands. The exact commands of every task are also in the Solutions section at the bottom of the live script, so you can try first and still look.
 
-**Status: draft.** The URDF imports, the model opens in MATLAB, the marketplace registers in the app, and all 14 tasks pass in a play-through with the tutor. The replay of the move in the last task and the ten-row check script are still to be confirmed.
+**Status: draft.** The URDF imports, the model opens in MATLAB, the marketplace registers in the app, and all 14 tasks of version 3.2.0 pass in a play-through with the tutor. The simulation of the last task plays the move. Still to be confirmed: saving the video with `smwritevideo`, the new tasks 13 and 14 with the tutor, and the ten-row check script.
 
 ## Run the mission
 
@@ -76,15 +76,16 @@ To undo it, run `copyfile(backup,skill)`. This changes your local copy of the to
 | 7 to 8 | Forward kinematics into the ready stance | Joint angles in, paw position out |
 | 9 to 10 | Inverse kinematics to the pad | Paw position in, joint angles out |
 | 11 | Pick the pose the real joints can reach | The solver ignores joint limits; an initial guess picks the answer |
-| 12 to 14 | Plan the move from stance to high-five | Solve along a path, each answer seeding the next. The viewer shows one pose at a time, so a loop replays the path to show the move |
+| 12 to 13 | Plan the move from stance to high-five | Solve along a path, each answer seeding the next, and check in a figure that the joint angles are smooth |
+| 14 | Play the move and save a video | The viewer of the solver shows one pose at a time. A simulation plays the solved path, and `smwritevideo` records it |
 
 ## What is in this repository
 
 | Folder | Contents |
 |---|---|
-| `marketplace/` | The marketplace manifest and the mission: `mission.yaml`, the setup script, the reset scripts, the live script that learners work in (`sprocket_worksheet.m`), the URDF and the STL parts |
+| `marketplace/` | The marketplace manifest and the mission: `mission.yaml`, the setup script, the reset scripts, the live script that learners work in (`sprocket_worksheet.m`), the helper function that plays a solved path as a simulation (`sprocket_play_path.m`), the URDF and the STL parts |
 | `cad/` | The parametric CAD source (`build_sprocket.py`, CadQuery), STEP parts, a coloured STEP assembly, and the reference kinematics (`kinematics.py`, `mission_numbers.json`) |
-| `matlab/` | A worked solution and `verify_sprocket_mission.m`, which runs the whole mission and compares it with the reference numbers. Also `sprocket_play_path.m`, an experimental function that plays a solved path as a simulation, so that `smwritevideo` can save it as a video. It is not part of the mission yet |
+| `matlab/` | A worked solution and `verify_sprocket_mission.m`, which runs the whole mission and compares it with the reference numbers |
 | `viewer/` | An interactive 3D viewer of the assembly and the mission. Open `Sprocket_viewer.html` in a browser (needs internet for three.js) |
 | `tools/` | `mission_tasks.py` (the task list), `build_mission.py` (writes the mission file, the live script and the reset scripts from it) and `validate_mission.py` (static checks) |
 | `docs/img/` | Renders |

@@ -290,14 +290,24 @@ def main():
                 or t["instruction"].count("Then answer this:") > 1]
     check("every question is checked by the tutor, with at most one per task", not mismatch, str(mismatch))
     solve_at = [i for i, t in enumerate(tasks) if any("solve(ks" in c for c in commands_of(t))]
-    view_at = [i for i, t in enumerate(tasks) if any("viewSolution(ks)" in c for c in commands_of(t))]
+    view_at = [i for i, t in enumerate(tasks)
+               if any("viewSolution(ks)" in c or "sprocket_play_path(" in c for c in commands_of(t))]
     unseen = [tasks[i]["id"] for i in solve_at if not any(i <= v <= i + 1 for v in view_at)]
-    check("every solve is followed by viewSolution, in the same task or the next",
+    check("every solve is followed by a look at Sprocket (viewSolution or the playback), in the same task or the next",
           len(view_at) >= 4 and not unseen, str(unseen))
-    replay = [c for c in commands_of(tasks[-1]) if c.startswith("for ")]
-    check("the last task replays the path: a loop that solves, redraws the viewer and pauses for every point",
-          len(replay) == 1 and all(part in replay[0] for part in ("solve(ks", "viewSolution(ks)", "pause(", "end")),
-          str(replay))
+    last = commands_of(tasks[-1])
+    check("the last task plays the path as a simulation and saves a video",
+          any("sprocket_play_path(urdfFile,qPath)" in c for c in last)
+          and any(c.startswith("smwritevideo(") for c in last), str(last))
+    check("the video has its own name, so that a check for it cannot find the live script",
+          '"sprocket_video"' in " ".join(last) and "sprocket_high_five" not in " ".join(last), str(last))
+    helper = RESET / "sprocket_play_path.m"
+    helper_text = helper.read_text(encoding="utf-8") if helper.is_file() else ""
+    check("the playback helper ships in the reset folder, and setup copies it and puts it on the path",
+          "function mdl = sprocket_play_path(urdfFile, qPath" in helper_text
+          and 'fullfile(cadFolder, "sprocket_play_path.m")' in setup_text and "addpath(workFolder)" in setup_text)
+    check("the playback helper refuses a path that does not move",
+          "sprocket:playPath:noMove" in helper_text)
     learner_text = [m["objective"]] + [t["instruction"] for t in tasks] + [h for t in tasks for h in t["hints"]]
     style = sorted({w for txt in learner_text
                     for w in re.findall(r"—|–|\s-\s|\b\w+n't\b|\b(?:it|that|you|we|they|he|she|let|here|there|what)'(?:s|ll|re|ve|d)\b",
@@ -416,7 +426,7 @@ def main():
 
     # Cheap MATLAB sanity: balanced brackets and quotes outside comments.
     unbalanced = []
-    for p in scripts + sorted((PROJECT / "matlab").glob("*.m")):
+    for p in scripts + sorted(RESET.glob("sprocket_play_path.m")) + sorted((PROJECT / "matlab").glob("*.m")):
         code = strip_comments_string_aware(p.read_text(encoding="utf-8"))
         nostr = re.sub(r'"(?:[^"\n]|"")*"', '""', code)
         if any(nostr.count(a) != nostr.count(b) for a, b in ("()", "[]", "{}")) or code.count('"') % 2:

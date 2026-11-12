@@ -73,6 +73,16 @@ catch
     % MATLAB may be running without a desktop. The live script is still on disk.
 end
 
+%% Give the learner the playback helper
+% sprocket_play_path.m plays a solved joint path as a simulation. The learner
+% calls it in the last task. A newer copy replaces an older one, because the
+% file belongs to the mission and is not the learner's work. The workspace
+% folder goes on the MATLAB path for this session, so that the function is
+% found whatever the current folder is.
+copyfile(fullfile(cadFolder, "sprocket_play_path.m"), ...
+    fullfile(workFolder, "sprocket_play_path.m"), "f");
+addpath(workFolder);
+
 %% Clean up internal variables
 clear resetName scriptFolder candidates isCad info cadFolder
 clear contentParent contentLeaf workFolder partsFolder urdfText
