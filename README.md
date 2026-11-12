@@ -6,9 +6,9 @@ A marketplace for the [Interactive Missions](https://github.com/matlab/agentic-l
 
 **Teach a Robot Dog to High-Five with KinematicsSolver**
 
-The learner imports Sprocket, a robot dog built as a real CAD assembly, into Simscape Multibody and poses him with `simscape.multibody.KinematicsSolver`. It has 14 tasks and takes about 60 minutes. It is written for people who know MATLAB and have no Simscape Multibody, robotics or CAD background. Every task gives the same four things: the background, the function that you need, why you need it, and your task with the exact commands.
+The learner imports Sprocket, a robot dog built as a real CAD assembly, into Simscape Multibody and poses him with `simscape.multibody.KinematicsSolver`. It has 14 tasks and takes about 60 minutes. It is written for people who know MATLAB and have no Simscape Multibody, robotics or CAD background. Every task gives you four things: the background, the function that you need with its general syntax, why you need it, and the task itself.
 
-You work in a live script. When the mission starts, `sprocket_high_five.m` opens in the Live Editor. It has one section for each task, with the instructions and an empty code area. You type the commands there, run the section, and tell the tutor. You can ask the tutor for a hint at any time: the first hint of every task explains the function again and gives the exact commands.
+You work in a live script. When the mission starts, `sprocket_high_five.m` opens in the Live Editor. It has one section for each task, with the background, the function and an empty code area. The tutor gives you the task in the chat. You type your code in the section, run it, and tell the tutor. You can ask the tutor for a hint at any time: the first hint of every task explains the function again and gives the exact commands. The exact commands of every task are also in the Solutions section at the bottom of the live script, so you can try first and still look.
 
 **Status: draft.** The URDF imports, the model opens in MATLAB, and the marketplace registers in the app. The ten-row check script and a full play-through with the tutor are still to be confirmed.
 
@@ -21,7 +21,7 @@ You work in a live script. When the mission starts, `sprocket_high_five.m` opens
 | 3 | Pick the Sprocket card. **Start Mission** saves progress, **Practice** does not. Choose your agent client |
 | 4 | The app shows a `cd` line for your mission workspace. Run it in a terminal and start the agent in that folder |
 | 5 | Start the tutor: `/mission-tutoring` in Claude Code, `$mission-tutoring` in Codex. Other clients follow the prompt the app shows |
-| 6 | Work in the live script that opens, `sprocket_high_five.m`. Type the commands of a task in its section and run the section with Ctrl+Enter. Tell the tutor when you are done with a task, or ask for a hint |
+| 6 | Work in the live script that opens, `sprocket_high_five.m`. The tutor gives you one task at a time. Read the section of that task, type your code in it and run the section with Ctrl+Enter. Tell the tutor when you are done, or ask for a hint |
 
 Supported releases: R2026a and later, because the live script is saved as plain text. Products: MATLAB, Simulink, Simscape, Simscape Multibody.
 
@@ -41,10 +41,16 @@ It only creates the file when it is missing, so existing marketplaces are left a
 
 ### How the tutor decides what to show
 
-The tutor follows its own skill, which the toolbox copies into your mission workspace. With the standard skill, the tutor presents the goal of each task and gives one hint each time you ask. This mission is built for that. Each task is one idea with one to three commands, and its title names the function to use. You get the exact commands in two ways that need no change to the tutor:
+The tutor follows its own skill, which the toolbox copies into your mission workspace. With the standard skill, the tutor presents the goal of each task in its own words and gives one hint each time you ask. A mission cannot fix the wording that the tutor uses. This mission is built for that. Each task is one idea with one to three commands, its title names the function to use, and the text is split by where it is shown as written:
 
-- **The live script.** `sprocket_high_five.m` holds the instructions of every task: the background, the function, why, and your task with the commands shown as an example. Below them is the code area where you type. The file in your workspace folder is yours. It is saved as plain text, so the tutor can read your code when you ask for help.
-- **Hints.** The first hint of every task explains the function again and gives the exact commands. Ask the tutor for a hint whenever you want to be shown what to do.
+| Where | What it holds | How fixed the wording is |
+|---|---|---|
+| The tutor, in the chat | The task and the reason, in words, with no commands | The tutor may reword it. It is short and has no commands, so there is little to cut |
+| The live script, one section for each task | The background, the function with its general syntax, why, and the code area where you type | Fixed. It is a file in your workspace |
+| The first hint of each task | The function again, the task and the exact commands | The tutor quotes hints or restates them closely |
+| Solutions, at the bottom of the live script | The exact commands of every task, as text | Fixed. It is in the same file |
+
+The live script in your workspace folder is yours. It is saved as plain text, so the tutor can read your code when you ask for help.
 
 The tutor still checks each task, answers your questions and asks a question after the tasks where there is something to notice.
 

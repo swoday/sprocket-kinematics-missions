@@ -159,23 +159,25 @@ def main():
         return found[0] if len(found) == 1 else None
 
     def commands_of(t):
-        typed = re.search(r"Your task, in MATLAB: .*?Type (.*?) in the code area of this task in your live script",
-                          t["instruction"], re.S)
+        typed = re.search(r"Type (.*?) in the code area of this task in your live script", t["hints"][0], re.S)
         return re.findall(r"`([^`]+)`", typed.group(1)) if typed else []
 
     def second_label(t):
         return "The function: " if action_of(t) == "MATLAB" else "What to look for: "
 
-    # Every task gives the same four parts in the same order, as the house
-    # interaction style does: background, the function, the reason, the task.
+    # The tutor gives the task: the instruction is the task description and the
+    # reason, in words. It holds no commands, because the stock tutor cuts them
+    # out. Background and the function live in the live script, and the exact
+    # commands are in the first hint and in the Solutions section.
     bad_action = []
-    for t in tasks:
+    for n, t in enumerate(tasks, 1):
         where, body = action_of(t), t["instruction"]
-        order = [body.find(label) for label in ("Background: ", second_label(t), "Why: ", "Your task, in ")]
-        if where is None or -1 in order or order != sorted(order) or not body.startswith("Background: ") \
-                or (where == "MATLAB" and not commands_of(t)):
+        if where is None or not body.startswith(f"Your task, in {where}: ") or "Why: " not in body \
+                or f"section Task {n} of your live script" not in body \
+                or (where == "MATLAB" and not commands_of(t)) \
+                or any(f"`{c}`" in body for c in commands_of(t)):
             bad_action.append(t["id"])
-    check("every task gives background, the function, why and the task, in that order", not bad_action, str(bad_action))
+    check("every instruction is the task description and the reason, with no commands", not bad_action, str(bad_action))
     check("the opening tells the learner how to work and who the mission is for",
           "How you will work: " in m["objective"] and "know MATLAB" in m["objective"])
     busywork = [t["id"] for t in tasks if commands_of(t) and all(
@@ -238,21 +240,32 @@ def main():
     section_starts = [i for i, line in enumerate(body_lines) if line.startswith("%[text] ## Task ")]
     check("live script: every task heading follows a section break",
           bool(section_starts) and all(body_lines[i - 1] == "%%" for i in section_starts))
-    sections = ["\n".join(body_lines[a:b]) for a, b in zip(section_starts, section_starts[1:] + [len(body_lines)])]
+    solutions_at = next((i for i, line in enumerate(body_lines) if line == "%[text] ## Solutions"), len(body_lines))
+    sections = ["\n".join(body_lines[a:b]) for a, b in zip(section_starts, section_starts[1:] + [solutions_at - 1])]
+    examples = lambda block: [[line[len("%[text] "):].strip() for line in found.splitlines()] for found in
+                              re.findall(r"(?s)%\[text\] ```matlabCodeExample\n(.*?)\n%\[text\] ```", block)]
     out_of_sync = []
     for n, (t, section) in enumerate(zip(tasks, sections), 1):
-        code = [line[len("%[text] "):].strip()
-                for block in re.findall(r"(?s)%\[text\] ```matlabCodeExample\n(.*?)\n%\[text\] ```", section)
-                for line in block.splitlines()]
-        labels = ["**Background:**", "**" + second_label(t).strip() + "**", "**Why:**",
-                  f"**Your task, in {action_of(t)}:**"]
+        in_matlab = action_of(t) == "MATLAB"
+        labels = ["**Background:**", "**" + second_label(t).strip() + "**"] + (["**Syntax:**"] if in_matlab else []) \
+            + ["**Why:**", "**Your task:**"]
         places = [section.find(label) for label in labels]
         has_area = f"% Task {n}: type your code below this line." in section
-        if [squeeze(c) for c in code] != [squeeze(c) for c in commands_of(t)] \
-                or -1 in places or places != sorted(places) or has_area != (action_of(t) == "MATLAB"):
+        if -1 in places or places != sorted(places) or has_area != in_matlab \
+                or len(examples(section)) != (1 if in_matlab else 0):
             out_of_sync.append(t["id"])
-    check("live script: every section has the four parts, the commands of its task and a code area",
+    check("live script: every section has background, the function with its syntax, why and a code area",
           len(sections) == len(tasks) and not out_of_sync, str(out_of_sync))
+    solutions = "\n".join(body_lines[solutions_at:])
+    unsolved = []
+    for n, t in enumerate(tasks, 1):
+        part = solutions.split(f"%[text] **Task {n}. {t['title']}**")
+        after = part[1].split("%[text] **Task ")[0] if len(part) == 2 else ""
+        given = examples(after)[0] if examples(after) else []
+        if len(part) != 2 or [squeeze(c) for c in given] != [squeeze(c) for c in commands_of(t)]:
+            unsolved.append(t["id"])
+    check("live script: the Solutions section at the very bottom has the exact commands of every task",
+          solutions_at < len(body_lines) and body_lines[solutions_at - 1] == "%%" and not unsolved, str(unsolved))
     check("live script: it opens with how to work through the mission",
           "%[text] ## How to work through this mission" in sheet.split("%[text] ## Task 1.")[0])
     stale = [name for name in ("Sprocket_guide.m", "Sprocket_guide.md") if (RESET / name).exists()]

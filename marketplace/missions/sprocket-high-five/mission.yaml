@@ -1,5 +1,5 @@
 mission_id: "01"
-version: "3.1.0"
+version: "3.2.0"
 title: Teach a Robot Dog to High-Five with KinematicsSolver
 thumbnail: thumbnail.png
 objective: >
@@ -16,13 +16,14 @@ objective: >
   loops and plotting. It assumes no knowledge of Simscape Multibody, robotics
   or CAD, so you are never expected to know one of their functions in advance.
   How you will work: you work in a live script named sprocket_high_five.m,
-  which opens when the mission starts. It has one section for each task, with
-  the instructions and a place for your code. Ada gives you one task at a
-  time, 14 in all. Every task gives the background, the function that
-  you need, why you need it, and your task. You type the commands in the
-  section of the task, run the section, and tell Ada. She checks your work
-  and gives you the next task. Ask Ada for a hint whenever you want the
-  function explained again with the exact commands. Before you begin, think
+  which opens when the mission starts. Ada gives you one task at a time,
+  14 in all, and tells you what to do and why. The section of that task
+  in the live script gives the background, explains the function that you
+  need, and has a place for your code. You type your code there, run the
+  section, and tell Ada. She checks your work and gives you the next task.
+  Ask Ada for a hint whenever you want the function explained again with the
+  exact commands. The exact commands of every task are also in the Solutions
+  section at the bottom of the live script. Before you begin, think
   about your own leg. When you bend your knee, does your foot move up or
   down?
 supported_matlab_releases: [R2026a, R2026b]
@@ -164,26 +165,28 @@ discovery:
 #
 # Teaching style. The line teaching_mode: guided_walkthrough above marks this
 # mission as a guided walkthrough.
-# - Every task is one idea, with one to three commands, and every
-#   instruction has the same four parts in the same order: Background, The
-#   function (or What to look for), Why, and Your task. When you present a
-#   task, give all four, in that order. Do not reduce them to the task
-#   alone, and never assume that the learner knows which function to use or
+# - You give the task. The instruction of every task is the task
+#   description: what to do, then why, in words. It contains no commands on
+#   purpose, so there is nothing in it to hold back. Present it in full and
+#   keep every name and value that it contains, in code formatting. Then ask
+#   its question, if it has one.
+# - The live script teaches. The setup script opens a live script named
+#   sprocket_high_five.m in the learner's Live Editor. It has one section for
+#   each task, under the headings Task 1 to Task 14. Each section has
+#   Background, The function with its general syntax, Why, and an empty code
+#   area where the learner types. Point the learner to the heading of the
+#   current task, and never assume that they know which function to use or
 #   where to click.
-# - In your opening, tell the learner how to work: in the live script
-#   sprocket_high_five.m, one task at a time. They type the commands in the
-#   section of the task, run the section, and tell Ada. A hint explains the
-#   function again and gives the exact commands.
-# - The first hint of every task repeats the function, the reason and the
-#   exact command. Give it as soon as the learner asks, hesitates or reports
-#   an error. If the learner says that they are new, treat that as a standing
-#   request for the first hint of every task.
-# - The setup script opens a live script named sprocket_high_five.m in the
-#   learner's Live Editor. It has one section for each task, under the
-#   headings Task 1 to Task 14, with the same four parts, the same
-#   commands as a code example, and an empty code area. The learner types
-#   the commands there and runs the section. Point the learner to the
-#   heading of the current task.
+# - In your opening, tell the learner how to work: you give one task at a
+#   time, they read the section of that task in the live script, type their
+#   code there, run the section, and tell you.
+# - The first hint of every task repeats the function, the reason, the task
+#   and the exact commands. Give it as soon as the learner asks, hesitates or
+#   reports an error. If the learner says that they are new, treat that as a
+#   standing request for the first hint of every task.
+# - The exact commands of every task are also in the Solutions section at
+#   the very bottom of the live script. Encourage the learner to try first.
+#   Offer the first hint before you send them to the Solutions.
 # - The live script is the learner's own file, in the workspace folder. It
 #   is saved as plain text, so you can read the learner's code in it when
 #   they ask for help. Do not edit it.
@@ -250,30 +253,15 @@ tasks:
     involves: [command]
     outcome_refs: [lo01]
     instruction: >
-      Background: Meet Sprocket. He is a robot dog, powered down on a
-      maintenance stand with his legs hanging straight. His design was made in
-      a Computer-Aided Design (CAD) program and saved in the Unified Robot
-      Description Format (URDF). A URDF file is a plain text file that lists
-      every rigid part of a robot and every joint that connects two parts.
-      Simscape Multibody is the MATLAB product that models such machines as
-      block diagrams in Simulink.
+      Your task, in MATLAB: import the robot description of Sprocket. Its
+      location is in the variable `urdfFile`. You only need to import once.
 
-      The function: smimport imports a robot description into Simscape
-      Multibody. You give it the location of a URDF file, and it builds a
-      Simulink model with one block for each part and one block for each joint.
-      The mission setup stored the location of the file in the variable
-      urdfFile. After a few seconds, a Simulink window named Sprocket opens.
-      You only need to import once.
-
-      Why: the solver that you will use works on a Simscape Multibody model, so
+      Why: The solver that you will use works on a Simscape Multibody model, so
       Sprocket has to become one first.
 
-      Your task, in MATLAB: import the URDF file of Sprocket. Type
-      `smimport(urdfFile)` in the code area of this task in your live script,
-      then run the section with Ctrl+Enter.
-
-      Your live script, sprocket_high_five.m, has the section for this task
-      under the heading Task 1.
+      Before you start, read Background and The function in the section Task 1
+      of your live script, sprocket_high_five.m. Type your code in the code
+      area of that section, then run the section with `Ctrl+Enter`.
     completion:
       strategy:
         - tool: evaluate_matlab_code
@@ -293,20 +281,21 @@ tasks:
         Sprocket.urdf has been imported as a loaded Simscape Multibody model.
     hints:
       - >
-        The function: smimport imports a robot description into Simscape
+        The function: `smimport` imports a robot description into Simscape
         Multibody. You give it the location of a URDF file, and it builds a
         Simulink model with one block for each part and one block for each
         joint. The mission setup stored the location of the file in the
-        variable urdfFile. After a few seconds, a Simulink window named
-        Sprocket opens. You only need to import once. Why: the solver that you
-        will use works on a Simscape Multibody model, so Sprocket has to become
-        one first. Your task, in MATLAB: import the URDF file of Sprocket. Type
+        variable `urdfFile`. After a few seconds, a Simulink window named
+        Sprocket opens. Why: The solver that you will use works on a Simscape
+        Multibody model, so Sprocket has to become one first. Your task, in
+        MATLAB: import the robot description of Sprocket. Its location is in
+        the variable `urdfFile`. You only need to import once. Type
         `smimport(urdfFile)` in the code area of this task in your live script,
-        then run the section with Ctrl+Enter.
+        then run the section with `Ctrl+Enter`.
       - >
-        If MATLAB says that urdfFile does not exist, tell me and I will run the
-        mission setup again. Pass urdfFile as a variable, with no quotes around
-        it.
+        If MATLAB says that `urdfFile` does not exist, tell me and I will run
+        the mission setup again. Pass `urdfFile` as a variable, with no quotes
+        around it.
       - >
         When the import works, a Simulink window named Sprocket opens. It shows
         a diagram of blocks joined by lines. Tell me when you can see it.
@@ -316,34 +305,17 @@ tasks:
     involves: [configuration, output_interpretation]
     outcome_refs: [lo01]
     instruction: >
-      Background: The block diagram describes Sprocket, but it does not look
-      like a dog. When you update a Simscape Multibody model, Simulink
-      assembles the parts at their joints and shows the result in a 3D viewer
-      called Mechanics Explorer.
+      Your task, in Simulink: click an empty area of the Sprocket model window
+      and press `Ctrl+D` (`Cmd+D` on a Mac) to see Sprocket in 3D. Then go back
+      to the block diagram and find the four joint blocks whose names start
+      with `fl_`.
 
-      Engineers describe a machine like Sprocket as rigid parts connected by
-      joints. A joint is the place where two parts meet and can move, like a
-      door hinge or your knee. A hinge is called a revolute joint, and one
-      number describes it: its angle. A leg with three hinges needs three
-      numbers, which engineers call three Degrees Of Freedom (DOF).
-
-      What to look for: Mechanics Explorer shows Sprocket on his stand, with a
-      round pad in front of him. In the block diagram, every part is a
-      subsystem block, and every joint is a block that sits between two parts.
-      The blocks of the front-left leg have names that start with fl_. Four of
-      them are joints: fl_hip_abduct, fl_hip_pitch, fl_knee and fl_foot.
-
-      Why: seeing the robot makes every later task easier to picture. The
+      Why: Seeing the robot makes every later task easier to picture. The
       joints of the front-left leg are the ones that you will drive for the
       rest of the mission.
 
-      Your task, in Simulink: click an empty area of the Sprocket model window
-      and press Ctrl+D (Cmd+D on a Mac) to see Sprocket in 3D. Then go back to
-      the block diagram and find the four joint blocks whose names start with
-      fl_.
-
-      Your live script, sprocket_high_five.m, has the section for this task
-      under the heading Task 2.
+      Before you start, read Background and What to look for in the section
+      Task 2 of your live script, sprocket_high_five.m.
 
       Then answer this: Three of those four joints are hinges that move the
       leg, and one is a rigid weld that only holds the paw on. Think about your
@@ -360,54 +332,43 @@ tasks:
         the front-left leg.
     hints:
       - >
-        What to look for: Mechanics Explorer shows Sprocket on his stand, with
+        What to look for: Multibody Explorer shows Sprocket on his stand, with
         a round pad in front of him. In the block diagram, every part is a
         subsystem block, and every joint is a block that sits between two
-        parts. The blocks of the front-left leg have names that start with fl_.
-        Four of them are joints: fl_hip_abduct, fl_hip_pitch, fl_knee and
-        fl_foot. Why: seeing the robot makes every later task easier to
-        picture. The joints of the front-left leg are the ones that you will
-        drive for the rest of the mission. Your task, in Simulink: click an
-        empty area of the Sprocket model window and press Ctrl+D (Cmd+D on a
-        Mac) to see Sprocket in 3D. Then go back to the block diagram and find
-        the four joint blocks whose names start with fl_.
+        parts. The blocks of the front-left leg have names that start with
+        `fl_`. Four of them are joints: `fl_hip_abduct`, `fl_hip_pitch`,
+        `fl_knee` and `fl_foot`. Why: Seeing the robot makes every later task
+        easier to picture. The joints of the front-left leg are the ones that
+        you will drive for the rest of the mission. Your task, in Simulink:
+        click an empty area of the Sprocket model window and press `Ctrl+D`
+        (`Cmd+D` on a Mac) to see Sprocket in 3D. Then go back to the block
+        diagram and find the four joint blocks whose names start with `fl_`.
       - >
-        If nothing happens when you press Ctrl+D, click once on an empty white
-        area of the block diagram first, so that the window is selected. You
-        can also open the Modeling tab and select Update Model. Each joint name
-        says what the joint does: fl_hip_abduct swings the whole leg sideways,
-        fl_hip_pitch swings it forward and back, and fl_knee bends the lower
-        leg.
+        If nothing happens when you press `Ctrl+D`, click once on an empty
+        white area of the block diagram first, so that the window is selected.
+        You can also open the Modeling tab and select Update Model. Each joint
+        name says what the joint does: `fl_hip_abduct` swings the whole leg
+        sideways, `fl_hip_pitch` swings it forward and back, and `fl_knee`
+        bends the lower leg.
       - >
-        The joint fl_foot is the weld that holds the paw on. So the three
-        hinges are fl_hip_abduct, fl_hip_pitch and fl_knee. Tell me those three
-        names.
+        The joint `fl_foot` is the weld that holds the paw on. So the three
+        hinges are `fl_hip_abduct`, `fl_hip_pitch` and `fl_knee`. Tell me those
+        three names.
 
   - id: "t03"
     title: Create the solver with KinematicsSolver
     involves: [command]
     outcome_refs: [lo02]
     instruction: >
-      Background: Kinematics is the geometry of motion. It describes how the
-      joint angles of a machine and the positions of its parts depend on each
-      other, with no forces or motors involved. Simscape Multibody answers
-      kinematics questions with an object called a KinematicsSolver. Think of
-      it as a geometry calculator for one model.
+      Your task, in MATLAB: create a solver for the model named Sprocket and
+      store it in a variable named `ks`.
 
-      The function: simscape.multibody.KinematicsSolver creates the solver
-      object. You give it the name of a loaded model. It takes a snapshot of
-      the parts and joints of that model, and it does not run a simulation.
-
-      Why: every other function in this mission takes this object as its first
+      Why: Every other function in this mission takes this object as its first
       input.
 
-      Your task, in MATLAB: create a solver for the model named Sprocket and
-      store it in a variable named ks. Type
-      `ks = simscape.multibody.KinematicsSolver("Sprocket");` in the code area
-      of this task in your live script, then run the section with Ctrl+Enter.
-
-      Your live script, sprocket_high_five.m, has the section for this task
-      under the heading Task 3.
+      Before you start, read Background and The function in the section Task 3
+      of your live script, sprocket_high_five.m. Type your code in the code
+      area of that section, then run the section with `Ctrl+Enter`.
     completion:
       strategy:
         - tool: evaluate_matlab_code
@@ -419,15 +380,15 @@ tasks:
         A KinematicsSolver object exists for the imported model.
     hints:
       - >
-        The function: simscape.multibody.KinematicsSolver creates the solver
+        The function: `simscape.multibody.KinematicsSolver` creates the solver
         object. You give it the name of a loaded model. It takes a snapshot of
         the parts and joints of that model, and it does not run a simulation.
-        Why: every other function in this mission takes this object as its
+        Why: Every other function in this mission takes this object as its
         first input. Your task, in MATLAB: create a solver for the model named
-        Sprocket and store it in a variable named ks. Type
+        Sprocket and store it in a variable named `ks`. Type
         `ks = simscape.multibody.KinematicsSolver("Sprocket");` in the code
         area of this task in your live script, then run the section with
-        Ctrl+Enter.
+        `Ctrl+Enter`.
       - >
         If MATLAB reports an error, check that the Sprocket window is still
         open and that the name in quotes matches its title. If you renamed the
@@ -441,33 +402,18 @@ tasks:
     involves: [command, output_interpretation]
     outcome_refs: [lo02]
     instruction: >
-      Background: The solver calls every quantity that it can work with a
-      variable. Each joint angle is a joint position variable. The solver does
-      not use the joint names from the model. It gives each variable an ID of
-      its own, such as j5.Rz.q, which reads as joint 5, rotation about the z
-      axis of that joint, position.
+      Your task, in MATLAB: list the joint position variables in a table named
+      `T`. Then store the IDs of the three front-left leg joints, in the order
+      hip abduction, hip pitch, knee, in a variable named `legIDs`.
 
-      The function: jointPositionVariables returns a table with one row for
-      each joint angle. The ID column holds the ID that the solver uses. The
-      BlockPath column names the joint block in the model that the angle
-      belongs to. The Unit column gives the unit. The rows whose BlockPath ends
-      in fl_hip_abduct, fl_hip_pitch and fl_knee belong to the front-left leg.
-      They are normally rows 1 to 3.
-
-      Why: the solver functions take lists of IDs as inputs. Storing the three
+      Why: The solver functions take lists of IDs as inputs. Storing the three
       leg IDs once saves you from looking them up in every later task.
 
-      Your task, in MATLAB: list the joint position variables in a table named
-      T. Then store the IDs of the three front-left leg joints, in the order
-      hip abduction, hip pitch, knee, in a variable named legIDs. Type
-      `T = jointPositionVariables(ks)`, then `legIDs = T.ID(1:3)` in the code
-      area of this task in your live script, then run the section with
-      Ctrl+Enter.
+      Before you start, read Background and The function in the section Task 4
+      of your live script, sprocket_high_five.m. Type your code in the code
+      area of that section, then run the section with `Ctrl+Enter`.
 
-      Your live script, sprocket_high_five.m, has the section for this task
-      under the heading Task 4.
-
-      Then answer this: Look at the Unit column of the table. Which unit does
+      Then answer this: Look at the `Unit` column of the table. Which unit does
       the solver use for joint angles?
     completion:
       strategy:
@@ -487,69 +433,45 @@ tasks:
         order.
     hints:
       - >
-        The function: jointPositionVariables returns a table with one row for
-        each joint angle. The ID column holds the ID that the solver uses. The
-        BlockPath column names the joint block in the model that the angle
-        belongs to. The Unit column gives the unit. The rows whose BlockPath
-        ends in fl_hip_abduct, fl_hip_pitch and fl_knee belong to the
-        front-left leg. They are normally rows 1 to 3. Why: the solver
-        functions take lists of IDs as inputs. Storing the three leg IDs once
-        saves you from looking them up in every later task. Your task, in
-        MATLAB: list the joint position variables in a table named T. Then
+        The function: `jointPositionVariables` returns a table with one row for
+        each joint angle. The `ID` column holds the ID that the solver uses.
+        The `BlockPath` column names the joint block in the model that the
+        angle belongs to. The `Unit` column gives the unit. The rows whose
+        `BlockPath` ends in `fl_hip_abduct`, `fl_hip_pitch` and `fl_knee`
+        belong to the front-left leg. They are normally rows 1 to 3. Why: The
+        solver functions take lists of IDs as inputs. Storing the three leg IDs
+        once saves you from looking them up in every later task. Your task, in
+        MATLAB: list the joint position variables in a table named `T`. Then
         store the IDs of the three front-left leg joints, in the order hip
-        abduction, hip pitch, knee, in a variable named legIDs. Type
+        abduction, hip pitch, knee, in a variable named `legIDs`. Type
         `T = jointPositionVariables(ks)`, then `legIDs = T.ID(1:3)` in the code
         area of this task in your live script, then run the section with
-        Ctrl+Enter.
+        `Ctrl+Enter`.
       - >
-        Check that the BlockPath values of rows 1 to 3 end in fl_hip_abduct,
-        fl_hip_pitch and fl_knee, in that order. If the three joints are on
-        other rows, index those rows instead, for example
+        Check that the `BlockPath` values of rows 1 to 3 end in
+        `fl_hip_abduct`, `fl_hip_pitch` and `fl_knee`, in that order. If the
+        three joints are on other rows, index those rows instead, for example
         `legIDs = T.ID([4 5 6])`.
       - >
-        The table has 13 rows, one for each joint that can move. legIDs holds
-        three IDs, such as j1.Rz.q, j2.Rz.q and j3.Rz.q. The Unit column shows
-        deg, which means degrees.
+        The table has 13 rows, one for each joint that can move. `legIDs` holds
+        three IDs, such as `j1.Rz.q`, `j2.Rz.q` and `j3.Rz.q`. The `Unit`
+        column shows `deg`, which means degrees.
 
   - id: "t05"
     title: Measure the paw with addFrameVariables
     involves: [command, configuration]
     outcome_refs: [lo03]
     instruction: >
-      Background: The solver knows every joint angle, but it does not yet know
-      which point on Sprocket you care about. Positions in a multibody model
-      are measured with frames. A frame is a coordinate system attached to a
-      part: an origin point and three axes named x, y and z. Think of a frame
-      as a combination of a GPS and a compass. It tells you where a part is and
-      which way it is facing.
+      Your task, in MATLAB: add frame variables that measure the translation of
+      the paw frame, `Sprocket/fl_foot/F`, from the world frame,
+      `Sprocket/World/W`. Use the group name `Paw`.
 
-      One frame never moves, and it is called the world frame. In this model it
-      sits on the floor under the middle of the body, with x pointing forward,
-      y pointing to the left of Sprocket and z pointing up. In the block
-      diagram, a frame is a port on a block. The world frame is port W of the
-      block named World, and port F of the joint block fl_foot sits at the
-      centre of the paw.
-
-      The function: addFrameVariables tells the solver to measure one frame,
-      called the follower, from another frame, called the base. Its inputs are
-      the solver, a group name of your choice, the kind of measurement, the
-      base frame and the follower frame. The kind translation gives three
-      variables: the distances along x, y and z. You write each frame as a
-      path: the model name, the block name and the port name, with slashes
-      between them.
-
-      Why: a high-five is about where the paw is, so the solver needs variables
+      Why: A high-five is about where the paw is, so the solver needs variables
       for the position of the paw.
 
-      Your task, in MATLAB: add frame variables that measure the translation of
-      the paw frame, Sprocket/fl_foot/F, from the world frame,
-      Sprocket/World/W. Use the group name Paw. Type
-      `addFrameVariables(ks,"Paw","translation","Sprocket/World/W","Sprocket/fl_foot/F");`
-      in the code area of this task in your live script, then run the section
-      with Ctrl+Enter.
-
-      Your live script, sprocket_high_five.m, has the section for this task
-      under the heading Task 5.
+      Before you start, read Background and The function in the section Task 5
+      of your live script, sprocket_high_five.m. Type your code in the code
+      area of that section, then run the section with `Ctrl+Enter`.
     completion:
       strategy:
         - tool: evaluate_matlab_code
@@ -565,20 +487,22 @@ tasks:
         front-left paw from the world frame.
     hints:
       - >
-        The function: addFrameVariables tells the solver to measure one frame,
-        called the follower, from another frame, called the base. Its inputs
-        are the solver, a group name of your choice, the kind of measurement,
-        the base frame and the follower frame. The kind translation gives three
-        variables: the distances along x, y and z. You write each frame as a
-        path: the model name, the block name and the port name, with slashes
-        between them. Why: a high-five is about where the paw is, so the solver
-        needs variables for the position of the paw. Your task, in MATLAB: add
-        frame variables that measure the translation of the paw frame,
-        Sprocket/fl_foot/F, from the world frame, Sprocket/World/W. Use the
-        group name Paw. Type
+        The function: `addFrameVariables` tells the solver to measure one
+        frame, called the *follower*, from another frame, called the *base*.
+        Its inputs are the solver, a group name of your choice, the kind of
+        measurement, the base frame and the follower frame. The kind
+        `"translation"` gives three variables: the distances along x, y and z.
+        You write each frame as a path: the model name, the block name and the
+        port name, with slashes between them. The world frame is
+        `"Sprocket/World/W"`, and the paw frame is `"Sprocket/fl_foot/F"`. Why:
+        A high-five is about where the paw is, so the solver needs variables
+        for the position of the paw. Your task, in MATLAB: add frame variables
+        that measure the translation of the paw frame, `Sprocket/fl_foot/F`,
+        from the world frame, `Sprocket/World/W`. Use the group name `Paw`.
+        Type
         `addFrameVariables(ks,"Paw","translation","Sprocket/World/W","Sprocket/fl_foot/F");`
         in the code area of this task in your live script, then run the section
-        with Ctrl+Enter.
+        with `Ctrl+Enter`.
       - >
         If MATLAB reports an error, the usual cause is a path that does not
         match a block. Check the spelling and the capital letters. If you
@@ -593,27 +517,17 @@ tasks:
     involves: [command, output_interpretation]
     outcome_refs: [lo03]
     instruction: >
-      Background: The solver now has three new variables, one for each axis of
-      the world frame. Remember the directions: x points forward, y points to
-      the left of Sprocket and z points up.
-
-      The function: frameVariables returns a table of the frame variables of
-      the solver. The ID column holds their IDs, and the Base and Follower
-      columns show the two frames of each measurement. You should see
-      Paw.Translation.x, Paw.Translation.y and Paw.Translation.z, in metres.
-
-      Why: the table confirms what you created. Its ID column is also the list
-      that stands for the position of the paw in every later task, just as
-      legIDs stands for the leg angles.
-
-      Your task, in MATLAB: list the frame variables in a table named F. Then
+      Your task, in MATLAB: list the frame variables in a table named `F`. Then
       store the three paw IDs, in the order x, y, z, in a variable named
-      pawIDs. Type `F = frameVariables(ks)`, then `pawIDs = F.ID` in the code
-      area of this task in your live script, then run the section with
-      Ctrl+Enter.
+      `pawIDs`.
 
-      Your live script, sprocket_high_five.m, has the section for this task
-      under the heading Task 6.
+      Why: The table confirms what you created. Its `ID` column is also the
+      list that stands for the position of the paw in every later task, just as
+      `legIDs` stands for the leg angles.
+
+      Before you start, read Background and The function in the section Task 6
+      of your live script, sprocket_high_five.m. Type your code in the code
+      area of that section, then run the section with `Ctrl+Enter`.
 
       Then answer this: If Sprocket lifts his paw straight up, which of those
       three numbers changes: x, y or z?
@@ -634,24 +548,24 @@ tasks:
         learner knows which one measures height.
     hints:
       - >
-        The function: frameVariables returns a table of the frame variables of
-        the solver. The ID column holds their IDs, and the Base and Follower
-        columns show the two frames of each measurement. You should see
-        Paw.Translation.x, Paw.Translation.y and Paw.Translation.z, in metres.
-        Why: the table confirms what you created. Its ID column is also the
-        list that stands for the position of the paw in every later task, just
-        as legIDs stands for the leg angles. Your task, in MATLAB: list the
-        frame variables in a table named F. Then store the three paw IDs, in
-        the order x, y, z, in a variable named pawIDs. Type
+        The function: `frameVariables` returns a table of the frame variables
+        of the solver. The `ID` column holds their IDs, and the `Base` and
+        `Follower` columns show the two frames of each measurement. You should
+        see `Paw.Translation.x`, `Paw.Translation.y` and `Paw.Translation.z`,
+        in metres. Why: The table confirms what you created. Its `ID` column is
+        also the list that stands for the position of the paw in every later
+        task, just as `legIDs` stands for the leg angles. Your task, in MATLAB:
+        list the frame variables in a table named `F`. Then store the three paw
+        IDs, in the order x, y, z, in a variable named `pawIDs`. Type
         `F = frameVariables(ks)`, then `pawIDs = F.ID` in the code area of this
-        task in your live script, then run the section with Ctrl+Enter.
+        task in your live script, then run the section with `Ctrl+Enter`.
       - >
         If the table is empty, the frame variables were not added. Go back one
-        task and run the addFrameVariables command again. If F holds more than
-        three rows, keep only the three Paw rows in pawIDs.
+        task and run the `addFrameVariables` command again. If `F` holds more
+        than three rows, keep only the three `Paw` rows in `pawIDs`.
       - >
-        You should see three rows, and pawIDs should hold their three IDs. The
-        answer to the question is z, because the z axis of the world frame
+        You should see three rows, and `pawIDs` should hold their three IDs.
+        The answer to the question is z, because the z axis of the world frame
         points up.
 
   - id: "t07"
@@ -659,30 +573,16 @@ tasks:
     involves: [command]
     outcome_refs: [lo04]
     instruction: >
-      Background: Time to wake Sprocket up. A kinematics problem has knowns and
-      unknowns. Forward kinematics is the problem where you know the joint
-      angles and you want the position of a part. It is the easy direction.
-      Bend your own knee by a known amount, and there is exactly one place
-      where your foot can be. The solver calls a known variable a target, and
-      it calls a variable that it calculates an output.
+      Your task, in MATLAB: make the three leg angles in `legIDs` the targets
+      and the three paw variables in `pawIDs` the outputs.
 
-      The function: addTargetVariables marks variables as targets, and
-      addOutputVariables marks variables as outputs. Each takes the solver and
-      a list of variable IDs. You supply the values of the targets when you
-      solve, and the solver returns the values of the outputs.
-
-      Why: the roles tell the solver which problem to solve. In the forward
+      Why: The roles tell the solver which problem to solve. In the forward
       problem, the leg angles are what you know and the position of the paw is
       what you want.
 
-      Your task, in MATLAB: make the three leg angles in legIDs the targets and
-      the three paw variables in pawIDs the outputs. Type
-      `addTargetVariables(ks,legIDs);`, then `addOutputVariables(ks,pawIDs);`
-      in the code area of this task in your live script, then run the section
-      with Ctrl+Enter.
-
-      Your live script, sprocket_high_five.m, has the section for this task
-      under the heading Task 7.
+      Before you start, read Background and The function in the section Task 7
+      of your live script, sprocket_high_five.m. Type your code in the code
+      area of that section, then run the section with `Ctrl+Enter`.
     completion:
       strategy:
         - tool: evaluate_matlab_code
@@ -695,21 +595,22 @@ tasks:
         outputs.
     hints:
       - >
-        The function: addTargetVariables marks variables as targets, and
-        addOutputVariables marks variables as outputs. Each takes the solver
+        The function: `addTargetVariables` marks variables as targets, and
+        `addOutputVariables` marks variables as outputs. Each takes the solver
         and a list of variable IDs. You supply the values of the targets when
-        you solve, and the solver returns the values of the outputs. Why: the
+        you solve, and the solver returns the values of the outputs. Why: The
         roles tell the solver which problem to solve. In the forward problem,
         the leg angles are what you know and the position of the paw is what
-        you want. Your task, in MATLAB: make the three leg angles in legIDs the
-        targets and the three paw variables in pawIDs the outputs. Type
+        you want. Your task, in MATLAB: make the three leg angles in `legIDs`
+        the targets and the three paw variables in `pawIDs` the outputs. Type
         `addTargetVariables(ks,legIDs);`, then `addOutputVariables(ks,pawIDs);`
         in the code area of this task in your live script, then run the section
-        with Ctrl+Enter.
+        with `Ctrl+Enter`.
       - >
-        If MATLAB says that legIDs or pawIDs does not exist, go back and store
-        those IDs again. If it says that a variable already has a role, run
-        `clearTargetVariables(ks); clearOutputVariables(ks);` and try again.
+        If MATLAB says that `legIDs` or `pawIDs` does not exist, go back and
+        store those IDs again. If it says that a variable already has a role,
+        run `clearTargetVariables(ks); clearOutputVariables(ks);` and try
+        again.
       - >
         When it works, nothing is printed. Display `targetVariables(ks)` and
         `outputVariables(ks)` to see the three targets and the three outputs.
@@ -719,36 +620,23 @@ tasks:
     involves: [command, output_interpretation]
     outcome_refs: [lo04]
     instruction: >
-      Background: When every joint is at 0 degrees, Sprocket hangs straight, so
-      each angle tells you how far a joint has turned from that pose. In his
-      ready stance, the front-left leg has fl_hip_abduct at 0, fl_hip_pitch at
-      40 and fl_knee at -80 degrees. Before you solve, make a prediction. With
-      the leg hanging straight, the paw is as low as it can go. Will bending
-      the joints make the paw end up higher or lower?
+      Your task, in MATLAB: first make a prediction. With the leg hanging
+      straight, the paw is as low as it can go. Will bending the joints make
+      the paw end up higher or lower? Then solve for the ready stance, with the
+      target values 0, 40 and -80 degrees, and store the paw position in a
+      variable named `pawStance`. Finish by opening the viewer to look at the
+      front-left leg.
 
-      The function: solve runs the solver. Its inputs are the solver and the
-      values of the targets, in the same order as the target list. It returns
-      the values of the outputs, and then a status flag. A status of 1 means
-      that the solver met every target. A negative status means that it could
-      not. viewSolution opens the Kinematics Solver Viewer, a 3D window that
-      shows the pose from the last call to solve.
-
-      Why: the call to solve answers the forward problem: where is the paw in
+      Why: The call to `solve` answers the forward problem: where is the paw in
       the ready stance? The viewer lets you check that answer with your own
       eyes, so use it after every solve from now on.
 
-      Your task, in MATLAB: solve for the ready stance, with the target values
-      0, 40 and -80, and store the paw position in a variable named pawStance.
-      Then open the viewer and look at the front-left leg. Type
-      `[pawStance,status] = solve(ks,[0 40 -80])`, then `viewSolution(ks)` in
-      the code area of this task in your live script, then run the section with
-      Ctrl+Enter.
-
-      Your live script, sprocket_high_five.m, has the section for this task
-      under the heading Task 8.
+      Before you start, read Background and The function in the section Task 8
+      of your live script, sprocket_high_five.m. Type your code in the code
+      area of that section, then run the section with `Ctrl+Enter`.
 
       Then answer this: Hanging straight, the paw was at a height of z = 0.08
-      metres. Compare that with the third number in pawStance. Was your
+      metres. Compare that with the third number in `pawStance`. Was your
       prediction right?
     completion:
       strategy:
@@ -771,23 +659,25 @@ tasks:
         learner has seen the pose.
     hints:
       - >
-        The function: solve runs the solver. Its inputs are the solver and the
-        values of the targets, in the same order as the target list. It returns
-        the values of the outputs, and then a status flag. A status of 1 means
-        that the solver met every target. A negative status means that it could
-        not. viewSolution opens the Kinematics Solver Viewer, a 3D window that
-        shows the pose from the last call to solve. Why: the call to solve
-        answers the forward problem: where is the paw in the ready stance? The
-        viewer lets you check that answer with your own eyes, so use it after
-        every solve from now on. Your task, in MATLAB: solve for the ready
-        stance, with the target values 0, 40 and -80, and store the paw
-        position in a variable named pawStance. Then open the viewer and look
-        at the front-left leg. Type
+        The function: `solve` runs the solver. Its inputs are the solver and
+        the values of the targets, in the same order as the target list. It
+        returns the values of the outputs, and then a *status flag*. A status
+        of 1 means that the solver met every target. A negative status means
+        that it could not. `viewSolution` opens the Kinematics Solver Viewer, a
+        3D window that shows the pose from the last call to `solve`. Why: The
+        call to `solve` answers the forward problem: where is the paw in the
+        ready stance? The viewer lets you check that answer with your own eyes,
+        so use it after every solve from now on. Your task, in MATLAB: first
+        make a prediction. With the leg hanging straight, the paw is as low as
+        it can go. Will bending the joints make the paw end up higher or lower?
+        Then solve for the ready stance, with the target values 0, 40 and -80
+        degrees, and store the paw position in a variable named `pawStance`.
+        Finish by opening the viewer to look at the front-left leg. Type
         `[pawStance,status] = solve(ks,[0 40 -80])`, then `viewSolution(ks)` in
         the code area of this task in your live script, then run the section
-        with Ctrl+Enter.
+        with `Ctrl+Enter`.
       - >
-        The values that you give to solve must be in the same order as the
+        The values that you give to `solve` must be in the same order as the
         targets. Display `targetVariables(ks)` to see that order. It should
         list hip abduction, hip pitch and knee, so the values are 0, 40 and
         -80.
@@ -801,31 +691,16 @@ tasks:
     involves: [command]
     outcome_refs: [lo05]
     instruction: >
-      Background: Now flip the question. A trainer has fixed a high-five pad to
-      the stand. The mission setup stored the point that the paw has to reach
-      in padPosition: three numbers, x, y and z in metres, measured in the
-      world frame. This time you know where the paw should be, and you want the
-      joint angles that put it there. That problem is called inverse
-      kinematics. Every robot has to solve it before it can touch anything.
+      Your task, in MATLAB: clear the roles. Then make the three paw variables
+      in `pawIDs` the targets and the three leg angles in `legIDs` the outputs.
 
-      The function: clearTargetVariables and clearOutputVariables remove the
-      target and output roles from all variables. Each takes only the solver as
-      input. The variables themselves stay. You then assign the roles again
-      with the two functions from the forward problem, with the lists swapped.
-
-      Why: a variable can have only one of these two roles at a time. In the
+      Why: A variable can have only one of these two roles at a time. In the
       inverse problem, the position of the paw is what you know and the leg
       angles are what you want.
 
-      Your task, in MATLAB: clear the roles, then make the three paw variables
-      the targets and the three leg angles the outputs. Type
-      `clearTargetVariables(ks); clearOutputVariables(ks);`, then
-      `addTargetVariables(ks,pawIDs); addOutputVariables(ks,legIDs);` in the
-      code area of this task in your live script, then run the section with
-      Ctrl+Enter.
-
-      Your live script, sprocket_high_five.m, has the section for this task
-      under the heading Task 9.
+      Before you start, read Background and The function in the section Task 9
+      of your live script, sprocket_high_five.m. Type your code in the code
+      area of that section, then run the section with `Ctrl+Enter`.
     completion:
       strategy:
         - tool: evaluate_matlab_code
@@ -839,60 +714,44 @@ tasks:
         outputs.
     hints:
       - >
-        The function: clearTargetVariables and clearOutputVariables remove the
-        target and output roles from all variables. Each takes only the solver
-        as input. The variables themselves stay. You then assign the roles
-        again with the two functions from the forward problem, with the lists
-        swapped. Why: a variable can have only one of these two roles at a
-        time. In the inverse problem, the position of the paw is what you know
-        and the leg angles are what you want. Your task, in MATLAB: clear the
-        roles, then make the three paw variables the targets and the three leg
-        angles the outputs. Type
+        The function: `clearTargetVariables` and `clearOutputVariables` remove
+        the target and output roles from all variables. Each takes only the
+        solver as input. The variables themselves stay. You then assign the
+        roles again with `addTargetVariables` and `addOutputVariables`, with
+        the lists swapped. Why: A variable can have only one of these two roles
+        at a time. In the inverse problem, the position of the paw is what you
+        know and the leg angles are what you want. Your task, in MATLAB: clear
+        the roles. Then make the three paw variables in `pawIDs` the targets
+        and the three leg angles in `legIDs` the outputs. Type
         `clearTargetVariables(ks); clearOutputVariables(ks);`, then
         `addTargetVariables(ks,pawIDs); addOutputVariables(ks,legIDs);` in the
         code area of this task in your live script, then run the section with
-        Ctrl+Enter.
+        `Ctrl+Enter`.
       - >
         If MATLAB says that a variable already has a role, the old roles are
         still in place. Run the first line again, then the second.
       - >
         When it works, nothing is printed. Display `targetVariables(ks)` to
-        check. It should list the three Paw variables.
+        check. It should list the three `Paw` variables.
 
   - id: "t10"
     title: Solve the inverse problem with solve and check the knee
     involves: [command, output_interpretation]
     outcome_refs: [lo05]
     instruction: >
-      Background: Inverse kinematics is the hard direction. No formula gives
-      the solver the angles directly, so it searches. It adjusts the angles a
-      little at a time until the paw lands on the target.
+      Your task, in MATLAB: solve for the point in `padPosition` and store the
+      joint angles in a variable named `qFirst`. Then open the viewer and look
+      at the front-left knee.
 
-      Real joints also have limits. The real knee can move only between -160
-      and +5 degrees. The solver only does geometry, so it ignores joint
-      limits, and no function checks them for you.
-
-      The function: solve works as before. The target values are now a
-      position, so you give it padPosition. It returns the three leg angles in
-      degrees, in the order hip abduction, hip pitch, knee, and then the status
-      flag. A status of 1 means that the paw reached the target. A negative
-      status means that the search stopped before it got there. viewSolution
-      shows the pose where the search ended.
-
-      Why: the result is the set of joint angles that the motors in the leg
+      Why: The result is the set of joint angles that the motors in the leg
       would have to reach. An answer that needs the knee to bend past its limit
       is useless on the real robot, and only you can spot it.
 
-      Your task, in MATLAB: solve for the point in padPosition and store the
-      joint angles in a variable named qFirst. Then open the viewer and look at
-      the front-left knee. Type `[qFirst,status] = solve(ks,padPosition)`, then
-      `viewSolution(ks)` in the code area of this task in your live script,
-      then run the section with Ctrl+Enter.
+      Before you start, read Background and The function in the section Task 10
+      of your live script, sprocket_high_five.m. Type your code in the code
+      area of that section, then run the section with `Ctrl+Enter`.
 
-      Your live script, sprocket_high_five.m, has the section for this task
-      under the heading Task 10.
-
-      Then answer this: The knee angle is the third number in qFirst. Is it
+      Then answer this: The knee angle is the third number in `qFirst`. Is it
       between -160 and +5 degrees?
     completion:
       strategy:
@@ -916,22 +775,22 @@ tasks:
         and the learner has compared the knee angle with its limit.
     hints:
       - >
-        The function: solve works as before. The target values are now a
-        position, so you give it padPosition. It returns the three leg angles
+        The function: `solve` works as before. The target values are now a
+        position, so you give it `padPosition`. It returns the three leg angles
         in degrees, in the order hip abduction, hip pitch, knee, and then the
         status flag. A status of 1 means that the paw reached the target. A
         negative status means that the search stopped before it got there.
-        viewSolution shows the pose where the search ended. Why: the result is
-        the set of joint angles that the motors in the leg would have to reach.
-        An answer that needs the knee to bend past its limit is useless on the
-        real robot, and only you can spot it. Your task, in MATLAB: solve for
-        the point in padPosition and store the joint angles in a variable named
-        qFirst. Then open the viewer and look at the front-left knee. Type
-        `[qFirst,status] = solve(ks,padPosition)`, then `viewSolution(ks)` in
-        the code area of this task in your live script, then run the section
-        with Ctrl+Enter.
+        `viewSolution` shows the pose where the search ended. Why: The result
+        is the set of joint angles that the motors in the leg would have to
+        reach. An answer that needs the knee to bend past its limit is useless
+        on the real robot, and only you can spot it. Your task, in MATLAB:
+        solve for the point in `padPosition` and store the joint angles in a
+        variable named `qFirst`. Then open the viewer and look at the
+        front-left knee. Type `[qFirst,status] = solve(ks,padPosition)`, then
+        `viewSolution(ks)` in the code area of this task in your live script,
+        then run the section with `Ctrl+Enter`.
       - >
-        The target is now a position, so you pass the variable padPosition
+        The target is now a position, so you pass the variable `padPosition`
         directly. If the status is negative, the search started from straight
         legs and lost its way. That is fine here, and the next task shows you
         how to guide it.
@@ -945,37 +804,18 @@ tasks:
     involves: [command, output_interpretation]
     outcome_refs: [lo05, lo06]
     instruction: >
-      Background: The paw can reach the pad in two ways: with the knee tucked
-      back behind the leg, as in the ready stance, or with the knee flipped
-      forward above the body. You can feel the same thing with your own arm.
-      Put a fingertip on the table and move your elbow up and down. The
-      fingertip stays where it is, yet your joint angles change.
+      Your task, in MATLAB: give the three leg angles in `legIDs` the initial
+      guess role. Then solve for the point in `padPosition` again, with the
+      guess 0, 40 and -80 degrees, and store the answer in a variable named
+      `qHighFive`. Finish by looking at the pose in the viewer.
 
-      The solver starts its search from a pose and stops at the first answer
-      that it finds. Which answer it finds depends on where it starts. An
-      initial guess is a starting pose that you choose.
-
-      The function: addInitialGuessVariables marks variables as initial
-      guesses. Its inputs are the solver and a list of variable IDs. A variable
-      can be an output and an initial guess at the same time. solve then takes
-      the guess values as a third input, in the same order as the initial guess
-      list.
-
-      Why: a search that starts near the answer that you want ends at that
+      Why: A search that starts near the answer that you want ends at that
       answer. The ready stance already has the knee bent backward, so it leads
       the search to the answer inside the joint limit.
 
-      Your task, in MATLAB: give the three leg angles in legIDs the initial
-      guess role. Then solve for the point in padPosition again, with the guess
-      0, 40 and -80, and store the answer in a variable named qHighFive. Finish
-      by looking at the pose in the viewer. Type
-      `addInitialGuessVariables(ks,legIDs);`, then
-      `[qHighFive,status] = solve(ks,padPosition,[0 40 -80])`, then
-      `viewSolution(ks)` in the code area of this task in your live script,
-      then run the section with Ctrl+Enter.
-
-      Your live script, sprocket_high_five.m, has the section for this task
-      under the heading Task 11.
+      Before you start, read Background and The function in the section Task 11
+      of your live script, sprocket_high_five.m. Type your code in the code
+      area of that section, then run the section with `Ctrl+Enter`.
 
       Then answer this: Why can the same paw position have two different sets
       of joint angles? Use the fingertip and elbow example if it helps.
@@ -1001,24 +841,24 @@ tasks:
         limit.
     hints:
       - >
-        The function: addInitialGuessVariables marks variables as initial
+        The function: `addInitialGuessVariables` marks variables as initial
         guesses. Its inputs are the solver and a list of variable IDs. A
-        variable can be an output and an initial guess at the same time. solve
-        then takes the guess values as a third input, in the same order as the
-        initial guess list. Why: a search that starts near the answer that you
-        want ends at that answer. The ready stance already has the knee bent
-        backward, so it leads the search to the answer inside the joint limit.
-        Your task, in MATLAB: give the three leg angles in legIDs the initial
-        guess role. Then solve for the point in padPosition again, with the
-        guess 0, 40 and -80, and store the answer in a variable named
-        qHighFive. Finish by looking at the pose in the viewer. Type
-        `addInitialGuessVariables(ks,legIDs);`, then
+        variable can be an output and an initial guess at the same time.
+        `solve` then takes the guess values as a third input, in the same order
+        as the initial guess list. Why: A search that starts near the answer
+        that you want ends at that answer. The ready stance already has the
+        knee bent backward, so it leads the search to the answer inside the
+        joint limit. Your task, in MATLAB: give the three leg angles in
+        `legIDs` the initial guess role. Then solve for the point in
+        `padPosition` again, with the guess 0, 40 and -80 degrees, and store
+        the answer in a variable named `qHighFive`. Finish by looking at the
+        pose in the viewer. Type `addInitialGuessVariables(ks,legIDs);`, then
         `[qHighFive,status] = solve(ks,padPosition,[0 40 -80])`, then
         `viewSolution(ks)` in the code area of this task in your live script,
-        then run the section with Ctrl+Enter.
+        then run the section with `Ctrl+Enter`.
       - >
-        The guess values go in the third input of solve, in the same order as
-        legIDs. The answer should be close to 17.8, -14.5 and -103.1 degrees,
+        The guess values go in the third input of `solve`, in the same order as
+        `legIDs`. The answer should be close to 17.8, -14.5 and -103.1 degrees,
         with a status of 1.
       - >
         Two answers exist because a leg with two segments can reach the same
@@ -1030,31 +870,17 @@ tasks:
     involves: [command]
     outcome_refs: [lo06]
     instruction: >
-      Background: A real robot cannot jump from one pose to another. It has to
-      pass through every pose in between, so your last job is to plan the move.
-      A path is many inverse kinematics problems in a row, one for each point
-      between where the paw is and where it has to be. The paw starts at
-      pawStance and has to end at padPosition. The points in between lie on the
-      straight line that joins them.
+      Your task, in MATLAB: make 25 points on the straight line from
+      `pawStance` to `padPosition` in a matrix named `pawPath`. Also make a
+      matrix of zeros named `qPath` with one row for each point, and a variable
+      named `guess` that holds the ready stance.
 
-      The function: this task uses plain MATLAB. linspace makes a column s of
-      evenly spaced numbers from 0 to 1. Blending the two positions with s
-      gives one row of pawPath for each point. qPath is a matrix of zeros for
-      the answers, and guess holds the ready stance as the first starting pose.
+      Why: Each row of `pawPath` becomes the target of one inverse kinematics
+      problem, and `qPath` collects the answers.
 
-      Why: each row of pawPath becomes the target of one inverse kinematics
-      problem, and qPath collects the answers.
-
-      Your task, in MATLAB: make 25 points on the straight line from pawStance
-      to padPosition in a matrix named pawPath. Also make a matrix of zeros
-      named qPath with one row for each point, and a variable named guess that
-      holds the ready stance. Type `n = 25; s = linspace(0,1,n)';`, then
-      `pawPath = (1-s).*pawStance(:)' + s.*padPosition(:)';`, then
-      `qPath = zeros(n,3); guess = [0 40 -80];` in the code area of this task
-      in your live script, then run the section with Ctrl+Enter.
-
-      Your live script, sprocket_high_five.m, has the section for this task
-      under the heading Task 12.
+      Before you start, read Background and The function in the section Task 12
+      of your live script, sprocket_high_five.m. Type your code in the code
+      area of that section, then run the section with `Ctrl+Enter`.
     completion:
       strategy:
         - tool: evaluate_matlab_code
@@ -1072,23 +898,24 @@ tasks:
         answers, and guess holds a starting pose.
     hints:
       - >
-        The function: this task uses plain MATLAB. linspace makes a column s of
-        evenly spaced numbers from 0 to 1. Blending the two positions with s
-        gives one row of pawPath for each point. qPath is a matrix of zeros for
-        the answers, and guess holds the ready stance as the first starting
-        pose. Why: each row of pawPath becomes the target of one inverse
-        kinematics problem, and qPath collects the answers. Your task, in
-        MATLAB: make 25 points on the straight line from pawStance to
-        padPosition in a matrix named pawPath. Also make a matrix of zeros
-        named qPath with one row for each point, and a variable named guess
-        that holds the ready stance. Type `n = 25; s = linspace(0,1,n)';`, then
+        The function: this task uses plain MATLAB. `linspace` makes a column
+        `s` of evenly spaced numbers from 0 to 1. Blending the two positions
+        with `s` gives one row of `pawPath` for each point. `qPath` is a matrix
+        of zeros for the answers, and `guess` holds the ready stance as the
+        first starting pose. Why: Each row of `pawPath` becomes the target of
+        one inverse kinematics problem, and `qPath` collects the answers. Your
+        task, in MATLAB: make 25 points on the straight line from `pawStance`
+        to `padPosition` in a matrix named `pawPath`. Also make a matrix of
+        zeros named `qPath` with one row for each point, and a variable named
+        `guess` that holds the ready stance. Type
+        `n = 25; s = linspace(0,1,n)';`, then
         `pawPath = (1-s).*pawStance(:)' + s.*padPosition(:)';`, then
         `qPath = zeros(n,3); guess = [0 40 -80];` in the code area of this task
-        in your live script, then run the section with Ctrl+Enter.
+        in your live script, then run the section with `Ctrl+Enter`.
       - >
-        If MATLAB says that pawStance does not exist, solve the forward problem
-        again. If the sizes do not match, check that s is a column and not a
-        row.
+        If MATLAB says that `pawStance` does not exist, solve the forward
+        problem again. If the sizes do not match, check that `s` is a column
+        and not a row.
       - >
         When it works, nothing is printed. `size(pawPath)` and `size(qPath)`
         should both be 25 rows and 3 columns.
@@ -1098,26 +925,16 @@ tasks:
     involves: [command, file_edit]
     outcome_refs: [lo06]
     instruction: >
-      Background: If each search starts from the previous answer, neighbouring
-      answers stay close together, and the knee never flips. This idea is
-      called a warm start.
+      Your task, in MATLAB: solve the inverse kinematics at every point of
+      `pawPath`, store each answer as a row of `qPath`, and use it as the guess
+      for the next point.
 
-      The function: the loop calls solve once for each row of pawPath. The
-      targets, outputs and initial guesses keep their roles between calls, so
-      only the numbers change.
-
-      Why: the result is a smooth list of joint angles that takes the paw from
+      Why: The result is a smooth list of joint angles that takes the paw from
       the ready stance to the pad.
 
-      Your task, in MATLAB: solve the inverse kinematics at every point of
-      pawPath, store each answer as a row of qPath, and use it as the guess for
-      the next point. Write the loop on one line. Type
-      `for k = 1:n, qk = solve(ks,pawPath(k,:),guess); qPath(k,:) = qk(:)'; guess = qk(:)'; end`
-      in the code area of this task in your live script, then run the section
-      with Ctrl+Enter.
-
-      Your live script, sprocket_high_five.m, has the section for this task
-      under the heading Task 13.
+      Before you start, read Background and The function in the section Task 13
+      of your live script, sprocket_high_five.m. Type your code in the code
+      area of that section, then run the section with `Ctrl+Enter`.
     completion:
       strategy:
         - tool: evaluate_matlab_code
@@ -1132,16 +949,16 @@ tasks:
         high-five pose.
     hints:
       - >
-        The function: the loop calls solve once for each row of pawPath. The
-        targets, outputs and initial guesses keep their roles between calls, so
-        only the numbers change. Why: the result is a smooth list of joint
-        angles that takes the paw from the ready stance to the pad. Your task,
-        in MATLAB: solve the inverse kinematics at every point of pawPath,
-        store each answer as a row of qPath, and use it as the guess for the
-        next point. Write the loop on one line. Type
+        The function: the loop calls `solve` once for each row of `pawPath`.
+        The targets, outputs and initial guesses keep their roles between
+        calls, so only the numbers change. Why: The result is a smooth list of
+        joint angles that takes the paw from the ready stance to the pad. Your
+        task, in MATLAB: solve the inverse kinematics at every point of
+        `pawPath`, store each answer as a row of `qPath`, and use it as the
+        guess for the next point. Type
         `for k = 1:n, qk = solve(ks,pawPath(k,:),guess); qPath(k,:) = qk(:)'; guess = qk(:)'; end`
         in the code area of this task in your live script, then run the section
-        with Ctrl+Enter.
+        with `Ctrl+Enter`.
       - >
         If MATLAB reports an error inside the loop, check that the roles are
         still in place: the paw translation as targets, and the leg angles as
@@ -1155,25 +972,16 @@ tasks:
     involves: [command, output_interpretation]
     outcome_refs: [lo06]
     instruction: >
-      Background: A figure shows at a glance whether the planned move is
-      smooth. The last solve in the loop was the last point of the path, which
-      is the pad, so the viewer now shows the end of the move.
+      Your task, in MATLAB: draw the three joint angles along the path in a
+      figure with a legend. Then open the viewer one last time.
 
-      The function: plot draws one line for each column of qPath, and legend
-      labels the lines. viewSolution shows the pose from the last solve.
-
-      Why: a sudden jump in a line would mean that a joint flipped between two
+      Why: A sudden jump in a line would mean that a joint flipped between two
       neighbouring points. The viewer shows the moment that the whole mission
       was for.
 
-      Your task, in MATLAB: draw the three joint angles along the path in a
-      figure with a legend, then open the viewer one last time. Type
-      `plot(s,qPath); legend("abduct","pitch","knee")`, then `viewSolution(ks)`
-      in the code area of this task in your live script, then run the section
-      with Ctrl+Enter.
-
-      Your live script, sprocket_high_five.m, has the section for this task
-      under the heading Task 14.
+      Before you start, read Background and The function in the section Task 14
+      of your live script, sprocket_high_five.m. Type your code in the code
+      area of that section, then run the section with `Ctrl+Enter`.
 
       Then answer this: Look at the three lines in your figure. Are they
       smooth, or does any line jump suddenly?
@@ -1199,19 +1007,19 @@ tasks:
         has seen Sprocket give a high-five.
     hints:
       - >
-        The function: plot draws one line for each column of qPath, and legend
-        labels the lines. viewSolution shows the pose from the last solve. Why:
-        a sudden jump in a line would mean that a joint flipped between two
-        neighbouring points. The viewer shows the moment that the whole mission
-        was for. Your task, in MATLAB: draw the three joint angles along the
-        path in a figure with a legend, then open the viewer one last time.
-        Type `plot(s,qPath); legend("abduct","pitch","knee")`, then
-        `viewSolution(ks)` in the code area of this task in your live script,
-        then run the section with Ctrl+Enter.
+        The function: `plot` draws one line for each column of `qPath`, and
+        `legend` labels the lines. `viewSolution` shows the pose from the last
+        solve. Why: A sudden jump in a line would mean that a joint flipped
+        between two neighbouring points. The viewer shows the moment that the
+        whole mission was for. Your task, in MATLAB: draw the three joint
+        angles along the path in a figure with a legend. Then open the viewer
+        one last time. Type `plot(s,qPath); legend("abduct","pitch","knee")`,
+        then `viewSolution(ks)` in the code area of this task in your live
+        script, then run the section with `Ctrl+Enter`.
       - >
-        The names in legend are in the same order as the columns of qPath: hip
-        abduction, hip pitch, knee. If the paw is not on the pad in the viewer,
-        run the loop of the previous task again.
+        The names in `legend` are in the same order as the columns of `qPath`:
+        hip abduction, hip pitch, knee. If the paw is not on the pad in the
+        viewer, run the loop of the previous task again.
       - >
         A figure window opens with three smooth lines, and the knee line stays
         below zero from start to end. The viewer shows Sprocket with his

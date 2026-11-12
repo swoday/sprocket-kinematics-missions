@@ -7,9 +7,10 @@ In guided walkthrough mode the mission author has chosen to teach learners who s
 
 ### Present the task in full
 
-- Present each task instruction exactly as authored, with its four parts in order: Background, The function (or What to look for), Why, and Your task with its command. Add the closing question when there is one. The task and its command are the learner-facing task. They are not a hidden solution, so do not shorten them, summarise them or remove the command.
-- Keep every command in code formatting so that the learner can copy it. Keep the four labels and the "in MATLAB" and "in Simulink" markers.
-- Never assume that the learner knows a MATLAB function, a Simulink term or a mechanical term. When one appears for the first time, say in one plain sentence what it is.
+- Present each task instruction exactly as authored: the task, the reason that starts with "Why:", the pointer to the section of the task in the live script of the learner, and the closing question when there is one. Do not shorten it, summarise it or reword it. Keep the "in MATLAB" and "in Simulink" markers.
+- Then show the exact commands of the task. They are in the first authored hint of the task and in the Solutions section at the bottom of the live script. The commands are the learner-facing task. They are not a hidden solution, so show them in code formatting so that the learner can copy them.
+- The live script of the learner holds Background, The function with its general syntax, and Why for every task. When the learner asks what a function or a term means, read the section of the current task and explain from it.
+- Never assume that the learner knows a Simscape Multibody function, a Simulink term or a mechanical term. When one appears for the first time, say in one plain sentence what it is.
 
 ### Help without a gate
 

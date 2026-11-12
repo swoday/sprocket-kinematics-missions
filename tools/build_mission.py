@@ -35,7 +35,7 @@ PROJECT = Path(__file__).resolve().parent.parent
 MISSION = PROJECT / "marketplace" / "missions" / "sprocket-high-five"
 RESET = MISSION / "task_reset_sprocket-high-five"
 
-VERSION = "3.1.0"
+VERSION = "3.2.0"
 WORKSHEET_NAME = "sprocket_worksheet.m"     # the plain text live script that ships in the reset folder
 LEARNER_SCRIPT = "sprocket_high_five.m"     # the name of the learner's copy in the workspace folder
 
@@ -57,13 +57,14 @@ objective: >
   loops and plotting. It assumes no knowledge of Simscape Multibody, robotics
   or CAD, so you are never expected to know one of their functions in advance.
   How you will work: you work in a live script named sprocket_high_five.m,
-  which opens when the mission starts. It has one section for each task, with
-  the instructions and a place for your code. Ada gives you one task at a
-  time, %(count)d in all. Every task gives the background, the function that
-  you need, why you need it, and your task. You type the commands in the
-  section of the task, run the section, and tell Ada. She checks your work
-  and gives you the next task. Ask Ada for a hint whenever you want the
-  function explained again with the exact commands. Before you begin, think
+  which opens when the mission starts. Ada gives you one task at a time,
+  %(count)d in all, and tells you what to do and why. The section of that task
+  in the live script gives the background, explains the function that you
+  need, and has a place for your code. You type your code there, run the
+  section, and tell Ada. She checks your work and gives you the next task.
+  Ask Ada for a hint whenever you want the function explained again with the
+  exact commands. The exact commands of every task are also in the Solutions
+  section at the bottom of the live script. Before you begin, think
   about your own leg. When you bend your knee, does your foot move up or
   down?
 supported_matlab_releases: [R2026a, R2026b]
@@ -205,26 +206,28 @@ discovery:
 #
 # Teaching style. The line teaching_mode: guided_walkthrough above marks this
 # mission as a guided walkthrough.
-# - Every task is one idea, with one to three commands, and every
-#   instruction has the same four parts in the same order: Background, The
-#   function (or What to look for), Why, and Your task. When you present a
-#   task, give all four, in that order. Do not reduce them to the task
-#   alone, and never assume that the learner knows which function to use or
+# - You give the task. The instruction of every task is the task
+#   description: what to do, then why, in words. It contains no commands on
+#   purpose, so there is nothing in it to hold back. Present it in full and
+#   keep every name and value that it contains, in code formatting. Then ask
+#   its question, if it has one.
+# - The live script teaches. The setup script opens a live script named
+#   sprocket_high_five.m in the learner's Live Editor. It has one section for
+#   each task, under the headings Task 1 to Task %(count)d. Each section has
+#   Background, The function with its general syntax, Why, and an empty code
+#   area where the learner types. Point the learner to the heading of the
+#   current task, and never assume that they know which function to use or
 #   where to click.
-# - In your opening, tell the learner how to work: in the live script
-#   sprocket_high_five.m, one task at a time. They type the commands in the
-#   section of the task, run the section, and tell Ada. A hint explains the
-#   function again and gives the exact commands.
-# - The first hint of every task repeats the function, the reason and the
-#   exact command. Give it as soon as the learner asks, hesitates or reports
-#   an error. If the learner says that they are new, treat that as a standing
-#   request for the first hint of every task.
-# - The setup script opens a live script named sprocket_high_five.m in the
-#   learner's Live Editor. It has one section for each task, under the
-#   headings Task 1 to Task %(count)d, with the same four parts, the same
-#   commands as a code example, and an empty code area. The learner types
-#   the commands there and runs the section. Point the learner to the
-#   heading of the current task.
+# - In your opening, tell the learner how to work: you give one task at a
+#   time, they read the section of that task in the live script, type their
+#   code there, run the section, and tell you.
+# - The first hint of every task repeats the function, the reason, the task
+#   and the exact commands. Give it as soon as the learner asks, hesitates or
+#   reports an error. If the learner says that they are new, treat that as a
+#   standing request for the first hint of every task.
+# - The exact commands of every task are also in the Solutions section at
+#   the very bottom of the live script. Encourage the learner to try first.
+#   Offer the first hint before you send them to the Solutions.
 # - The live script is the learner's own file, in the workspace folder. It
 #   is saved as plain text, so you can read the learner's code in it when
 #   they ask for help. Do not edit it.
@@ -289,15 +292,19 @@ tasks:
 '''
 
 WORKSHEET_HEADER = '''%[text] # Teach Sprocket to high-five
-%[text] This live script is where you work through the mission. It has one section for each task, with the instructions and a place for your code. You know MATLAB. Simscape Multibody, robotics and CAD are new to you, so nothing here expects you to know one of their functions in advance.
+%[text] This live script is where you work through the mission. It has one section for each task, with the background, the function that you need and a place for your code. You know MATLAB. Simscape Multibody, robotics and CAD are new to you, so nothing here expects you to know one of their functions in advance.
 %[text] ## How to work through this mission
-%[text] 1. Ada, your tutor, gives you one task at a time. Find the section of that task in this live script.
-%[text] 2. Read the four parts of the task: **Background**, **The function**, **Why** and **Your task**. For a task that you do with the mouse, the second part is **What to look for**.
-%[text] 3. Type the commands in the code area at the end of the section, then run the section with Ctrl+Enter (Cmd+Enter on a Mac). The output appears next to your code.
+%[text] 1. Ada, your tutor, gives you one task at a time in the chat: what to do and why. Find the section of that task in this live script.
+%[text] 2. Read the section. **Background** tells the story and the idea. **The function** explains the function that you need and shows its general syntax. **Why** gives the reason. For a task that you do with the mouse, the second part is **What to look for**.
+%[text] 3. Type your code in the code area at the end of the section, then run the section with `Ctrl+Enter` (`Cmd+Enter` on a Mac). The output appears next to your code.
 %[text] 4. Tell Ada that you are done. She checks your work in MATLAB and gives you the next task.
 %[text] 5. Ask Ada for a hint whenever you like. The first hint of every task explains the function again and gives the exact commands. You can also ask her what any word means.
-%[text] 6. Run each section once, in order. If the solver ends up in a state that you did not intend, run the sections again from Task 3, which creates a fresh solver. \\
+%[text] 6. The exact commands of every task are in the **Solutions** section at the very bottom of this live script. Try each task first, and look there when you are stuck.
+%[text] 7. Run each section once, in order. If the solver ends up in a state that you did not intend, run the sections again from Task 3, which creates a fresh solver. \\
 '''
+
+SOLUTIONS_INTRO = ("Try each task first. If you are stuck, ask Ada for a hint, or look here. The commands below are "
+                   "examples in text, so running this section does nothing. Type them in the section of their task.")
 
 WORKSHEET_APPENDIX = '''%[appendix]{"version":"1.0"}
 %---
@@ -331,6 +338,11 @@ def folded(paras, indent):
     return "\n\n".join(wrap(p, indent) for p in paras)
 
 
+def sentence(text):
+    """Start a sentence that follows a label with a capital letter."""
+    return text[:1].upper() + text[1:]
+
+
 def shown(commands):
     return ", then ".join(f"`{c}`" for c in commands)
 
@@ -342,29 +354,28 @@ def second_part(t):
     return "What to look for", one_line(t["look"])
 
 
-def task_sentence(t):
-    if t["where"] == "MATLAB":
-        return (f"{one_line(t['task'])} Type {shown(t['commands'])} in the code area of this task in your "
-                f"live script, then run the section with Ctrl+Enter.")
-    return one_line(t["task"])
-
-
 def instruction_paragraphs(n, t):
-    label, text = second_part(t)
-    first, *rest = paragraphs(t["background"])
-    paras = [f"Background: {first}", *rest,
-             f"{label}: {text}",
-             f"Why: {one_line(t['why'])}",
-             f"Your task, in {t['where']}: {task_sentence(t)}",
-             f"Your live script, {LEARNER_SCRIPT}, has the section for this task under the heading Task {n}."]
+    """What the tutor says: the task description and the reason, in words, with no commands.
+    The stock tutor cuts commands out of an instruction, so there are none here to cut."""
+    label, _ = second_part(t)
+    pointer = (f"Before you start, read Background and {label} in the section Task {n} of your live script, "
+               f"{LEARNER_SCRIPT}.")
+    if t["where"] == "MATLAB":
+        pointer += " Type your code in the code area of that section, then run the section with `Ctrl+Enter`."
+    paras = [f"Your task, in {t['where']}: {one_line(t['task'])}", f"Why: {sentence(one_line(t['why']))}", pointer]
     if t.get("question"):
         paras.append(f"Then answer this: {one_line(t['question'])}")
     return paras
 
 
 def first_hint(t):
+    """The first hint carries everything, with the exact commands. The tutor passes hints on as written."""
     label, text = second_part(t)
-    return f"{label}: {text} Why: {one_line(t['why'])} Your task, in {t['where']}: {task_sentence(t)}"
+    hint = f"{label}: {text} Why: {sentence(one_line(t['why']))} Your task, in {t['where']}: {one_line(t['task'])}"
+    if t["where"] == "MATLAB":
+        hint += (f" Type {shown(t['commands'])} in the code area of this task in your live script, "
+                 f"then run the section with `Ctrl+Enter`.")
+    return hint
 
 
 def task_yaml(n, t):
@@ -397,32 +408,49 @@ def ls(text):
                    for p in pieces)
 
 
+def code_example(lines):
+    return ["%[text] ```matlabCodeExample", *[f"%[text] {line}" for line in lines], "%[text] ```"]
+
+
 def worksheet_section(n, t):
-    """One task as a section of a plain text live script: the four parts as text, then a code area.
-    Each paragraph is a single %[text] line, and no blank line may sit between two markup lines."""
+    """One task as a section of a plain text live script: Background, The function with its general
+    syntax, Why, then an empty code area. The tutor gives the task itself, and the exact commands are
+    in the Solutions section. Each paragraph is a single %[text] line, and no blank line may sit
+    between two markup lines."""
     label, text = second_part(t)
     first, *rest = paragraphs(t["background"])
     out = ["%%", f"%[text] ## Task {n}. {ls(t['title'])}", f"%[text] **Background:** {ls(first)}"]
     out += [f"%[text] {ls(p)}" for p in rest]
     out.append(f"%[text] **{label}:** {ls(text)}")
-    out.append(f"%[text] **Why:** {ls(t['why'])}")
     if t["where"] == "MATLAB":
-        out.append(f"%[text] **Your task, in MATLAB:** {ls(t['task'])} Type this in the code area below, "
-                   f"then run the section with Ctrl+Enter.")
-        out.append("%[text] ```matlabCodeExample")
-        out += [f"%[text] {c}" for c in t["commands"]]
-        out.append("%[text] ```")
-    else:
-        out.append(f"%[text] **Your task, in Simulink:** {ls(t['task'])}")
-    if t.get("question"):
-        out.append(f"%[text] **Then tell Ada:** {ls(t['question'])}")
+        out.append("%[text] **Syntax:**")
+        out += code_example(t["syntax"])
+    out.append(f"%[text] **Why:** {sentence(ls(t['why']))}")
     if t["where"] == "MATLAB":
+        out.append("%[text] **Your task:** Ada gives you the task in the chat. Type your code below, "
+                   "then run this section with `Ctrl+Enter`.")
         out += [f"% Task {n}: type your code below this line.", ""]
+    else:
+        out.append("%[text] **Your task:** Ada gives you the task in the chat. You do it with the mouse "
+                   "in the Simulink window.")
+    return "\n".join(out)
+
+
+def solutions_section(tasks):
+    """The exact commands of every task, as text, at the very bottom of the live script."""
+    out = ["%%", "%[text] ## Solutions", f"%[text] {SOLUTIONS_INTRO}"]
+    for n, t in enumerate(tasks, 1):
+        out.append(f"%[text] **Task {n}. {ls(t['title'])}**")
+        if t["where"] == "MATLAB":
+            out += code_example(t["commands"])
+        else:
+            out.append("%[text] This task has no code. You do it with the mouse in the Simulink window.")
     return "\n".join(out)
 
 
 def worksheet(tasks):
-    body = "\n".join(worksheet_section(i, t) for i, t in enumerate(tasks, 1)).rstrip("\n")
+    sections = [worksheet_section(i, t) for i, t in enumerate(tasks, 1)] + [solutions_section(tasks)]
+    body = "\n".join(sections).rstrip("\n")
     return WORKSHEET_HEADER + body + "\n\n" + WORKSHEET_APPENDIX     # exactly one blank line before the appendix
 
 
@@ -453,7 +481,7 @@ def main():
 
     in_simulink = sum(t["where"] == "Simulink" for t in TASKS)
     print(f"mission.yaml: version {VERSION}, {count} tasks ({count - in_simulink} in MATLAB, {in_simulink} in Simulink)")
-    print(f"{WORKSHEET_NAME}: live script with {count} sections, copied to the learner as {LEARNER_SCRIPT}")
+    print(f"{WORKSHEET_NAME}: live script with {count} sections and Solutions, copied to the learner as {LEARNER_SCRIPT}")
     print(f"reset scripts: reset_t02.m to reset_t{count:02d}.m")
 
 

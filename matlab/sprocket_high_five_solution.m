@@ -9,7 +9,7 @@
 %% Stage 1. Import the CAD assembly into Simscape Multibody
 % smimport reads the URDF (links, joints, part geometry) and builds a model
 % named after the file. Press Ctrl+D in the model to see Sprocket in
-% Mechanics Explorer.
+% Multibody Explorer.
 smimport(urdfFile);
 mdl = "Sprocket";
 
