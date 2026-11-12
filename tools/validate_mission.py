@@ -192,6 +192,17 @@ def main():
     entry = [e for e in manifest.get("missions", []) if e.get("id") == MISSION_DIR.name]
     check("manifest lists the mission at the right path",
           len(entry) == 1 and (MARKET / entry[0]["path"]).is_file())
+    # registerMarketplace.m reads these five fields with this pattern and rejects
+    # the marketplace when one is missing or empty (an empty source_url included).
+    manifest_text = (MARKET / "manifest.yaml").read_text(encoding="utf-8")
+    unreadable = [f for f in ("id", "title", "source_url", "content_version", "minimum_toolbox_version")
+                  if not re.search(r"(?m)^" + f + r":\s*[\"']?([^\"'\r\n]+)[\"']?\s*$", manifest_text)]
+    check("manifest fields the app requires are present and not empty", not unreadable, str(unreadable))
+    src = str(manifest.get("source_url") or "")
+    check("manifest source_url is an HTTPS or SSH Git clone URL",
+          bool(re.match(r"^https://[^/@:]+(?::[0-9]+)?/\S+$", src)
+               or re.match(r"^ssh://[^@/\s]+@[^/:\s]+(?::[0-9]+)?/\S+$", src)
+               or re.match(r"^[^@/\s]+@[^:/\s]+:\S+$", src)), src or "(empty)")
 
     # URDF
     urdf = RESET / "Sprocket.urdf"
