@@ -8,7 +8,7 @@ A marketplace for the [Interactive Missions](https://github.com/matlab/agentic-l
 
 The learner imports Sprocket, a robot dog built as a real CAD assembly, into Simscape Multibody and poses him with `simscape.multibody.KinematicsSolver`. Seven tasks, about 45 minutes, for MATLAB users who are new to Simscape Multibody.
 
-**Status: draft.** The URDF imports and the model opens in MATLAB. The ten-row check script and a full play-through with the tutor are still to be confirmed.
+**Status: draft.** The URDF imports, the model opens in MATLAB, and the marketplace registers in the app. The ten-row check script and a full play-through with the tutor are still to be confirmed.
 
 ## Run the mission
 
@@ -22,6 +22,20 @@ The learner imports Sprocket, a robot dog built as a real CAD assembly, into Sim
 | 6 | Work in the MATLAB Command Window. Tell the tutor when you are done with a task, or ask for a hint |
 
 Supported releases: R2024b to R2026b. Products: MATLAB, Simulink, Simscape, Simscape Multibody.
+
+### If adding the marketplace fails
+
+If the app answers `Unrecognized field name "Id"` when you add the link, its list of registered marketplaces has not been created yet. Run this once in the MATLAB Command Window, add the link again, then close and reopen the app:
+
+```matlab
+f = fullfile(prefdir,"InteractiveMissions","app","installed_marketplaces.json");
+if ~isfile(f)
+    if ~isfolder(fileparts(f)), mkdir(fileparts(f)); end
+    writelines('{"Marketplaces":[]}', f);
+end
+```
+
+It only creates the file when it is missing, so existing marketplaces are left alone.
 
 ## What the mission teaches
 
