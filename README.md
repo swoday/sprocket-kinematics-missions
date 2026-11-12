@@ -84,7 +84,7 @@ To undo it, run `copyfile(backup,skill)`. This changes your local copy of the to
 |---|---|
 | `marketplace/` | The marketplace manifest and the mission: `mission.yaml`, the setup script, the reset scripts, the live script that learners work in (`sprocket_worksheet.m`), the URDF and the STL parts |
 | `cad/` | The parametric CAD source (`build_sprocket.py`, CadQuery), STEP parts, a coloured STEP assembly, and the reference kinematics (`kinematics.py`, `mission_numbers.json`) |
-| `matlab/` | A worked solution and `verify_sprocket_mission.m`, which runs the whole mission and compares it with the reference numbers |
+| `matlab/` | A worked solution and `verify_sprocket_mission.m`, which runs the whole mission and compares it with the reference numbers. Also `sprocket_play_path.m`, an experimental function that plays a solved path as a simulation, so that `smwritevideo` can save it as a video. It is not part of the mission yet |
 | `viewer/` | An interactive 3D viewer of the assembly and the mission. Open `Sprocket_viewer.html` in a browser (needs internet for three.js) |
 | `tools/` | `mission_tasks.py` (the task list), `build_mission.py` (writes the mission file, the live script and the reset scripts from it) and `validate_mission.py` (static checks) |
 | `docs/img/` | Renders |
