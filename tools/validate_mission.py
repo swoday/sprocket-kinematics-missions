@@ -120,7 +120,7 @@ def main():
     tasks = m["tasks"]
     ids = [t.get("id") for t in tasks]
     check("task ids are sequential", ids == [f"t{i:02d}" for i in range(1, len(tasks) + 1)], str(ids))
-    check("20 to 30 small tasks, one action each", 20 <= len(tasks) <= 30, f"{len(tasks)} tasks")
+    check("10 to 16 tasks, one idea each", 10 <= len(tasks) <= 16, f"{len(tasks)} tasks")
     bad_fields, bad_tools, bad_hints, bad_guidance = [], [], [], []
     for t in tasks:
         tid = t["id"]
@@ -159,7 +159,7 @@ def main():
         return found[0] if len(found) == 1 else None
 
     def commands_of(t):
-        typed = re.search(r"Your task, in MATLAB: .*?Type (.*?) in the Command Window and press Enter\.",
+        typed = re.search(r"Your task, in MATLAB: .*?Type (.*?) in the Command Window and press Enter",
                           t["instruction"], re.S)
         return re.findall(r"`([^`]+)`", typed.group(1)) if typed else []
 
@@ -176,11 +176,13 @@ def main():
                 or (where == "MATLAB" and not commands_of(t)):
             bad_action.append(t["id"])
     check("every task gives background, the function, why and the task, in that order", not bad_action, str(bad_action))
-    check("the mission opens by telling the learner how to work",
-          "How you will work: " in m["objective"] and "This is how you will work." in tasks[0]["instruction"]
-          and "know MATLAB" in m["objective"])
-    many = [f"{t['id']}: {len(commands_of(t))}" for t in tasks if len(commands_of(t)) > 2]
-    check("no task asks for more than two command lines", not many, str(many))
+    check("the opening tells the learner how to work and who the mission is for",
+          "How you will work: " in m["objective"] and "know MATLAB" in m["objective"])
+    busywork = [t["id"] for t in tasks if commands_of(t) and all(
+        re.fullmatch(r"\w+|edit\(\w+\)", c.strip()) for c in commands_of(t))]
+    check("no task is only displaying a variable or opening a file", not busywork, str(busywork))
+    many = [f"{t['id']}: {len(commands_of(t))}" for t in tasks if len(commands_of(t)) > 3]
+    check("no task asks for more than three command lines", not many, str(many))
     untitled = [t["id"] for t in tasks if action_of(t) == "MATLAB"
                 and not any(word.lower() in t["title"].lower()
                             for c in commands_of(t) for word in re.findall(r"[A-Za-z]\w{3,}", c))]
@@ -232,16 +234,17 @@ def main():
           setup_text.count('"Sprocket_guide.md"') == 2 and "edit(guideFile)" in setup_text
           and not re.search(r"(?m)^clear .*\bguideFile\b", setup_text))
     in_simulink = [t["id"] for t in tasks if action_of(t) == "Simulink"]
-    check("the mission has actions in both MATLAB and Simulink", len(in_simulink) >= 3, str(in_simulink))
+    check("the mission has tasks in both MATLAB and Simulink", len(in_simulink) >= 1, str(in_simulink))
     mismatch = [t["id"] for t in tasks
                 if bool(re.search(r"Then answer this:[^?]*\?", t["instruction"], re.S))
                 != any(i.get("kind") == "learner_confirmation" for i in t["completion"]["strategy"])
                 or t["instruction"].count("Then answer this:") > 1]
     check("every question is checked by the tutor, with at most one per task", not mismatch, str(mismatch))
     solve_at = [i for i, t in enumerate(tasks) if any("solve(ks" in c for c in commands_of(t))]
-    view_at = [i for i, t in enumerate(tasks) if commands_of(t) == ["viewSolution(ks)"]]
-    unseen = [tasks[i]["id"] for i in solve_at if not any(i < v <= i + 2 for v in view_at)]
-    check("every solve is followed by a viewSolution task", len(view_at) >= 4 and not unseen, str(unseen))
+    view_at = [i for i, t in enumerate(tasks) if "viewSolution(ks)" in commands_of(t)]
+    unseen = [tasks[i]["id"] for i in solve_at if not any(i <= v <= i + 1 for v in view_at)]
+    check("every solve is followed by viewSolution, in the same task or the next",
+          len(view_at) >= 4 and not unseen, str(unseen))
     learner_text = [m["objective"]] + [t["instruction"] for t in tasks] + [h for t in tasks for h in t["hints"]]
     style = sorted({w for txt in learner_text
                     for w in re.findall(r"—|–|\s-\s|\b\w+n't\b|\b(?:it|that|you|we|they|he|she|let|here|there|what)'(?:s|ll|re|ve|d)\b",

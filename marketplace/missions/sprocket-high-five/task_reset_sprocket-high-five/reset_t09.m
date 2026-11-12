@@ -1,4 +1,4 @@
-% Ready for Task 09: the state after Task 08 (Find the world frame and the paw frame).
+% Ready for Task 09: the state after Task 08 (Solve the forward problem with solve and viewSolution).
 run("reset_t08.m");
 
-% Task 08 changes nothing in MATLAB.
+[pawStance, status] = solve(ks, [0 40 -80]);

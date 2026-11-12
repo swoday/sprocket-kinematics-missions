@@ -1,4 +1,7 @@
-% Ready for Task 10: the state after Task 09 (Measure the paw with addFrameVariables).
+% Ready for Task 10: the state after Task 09 (Swap the roles with clearTargetVariables and clearOutputVariables).
 run("reset_t09.m");
 
-addFrameVariables(ks, "Paw", "translation", mdl + "/World/W", mdl + "/fl_foot/F");
+clearTargetVariables(ks);
+clearOutputVariables(ks);
+addTargetVariables(ks, pawIDs);
+addOutputVariables(ks, legIDs);

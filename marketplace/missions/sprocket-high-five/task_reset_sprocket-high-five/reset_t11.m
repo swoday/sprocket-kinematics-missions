@@ -1,4 +1,4 @@
-% Ready for Task 11: the state after Task 10 (List the measurements with frameVariables).
+% Ready for Task 11: the state after Task 10 (Solve the inverse problem with solve and check the knee).
 run("reset_t10.m");
 
-F = frameVariables(ks);
+[qFirst, status] = solve(ks, padPosition);

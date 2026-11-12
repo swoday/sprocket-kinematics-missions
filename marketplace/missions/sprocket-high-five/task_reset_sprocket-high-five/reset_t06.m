@@ -1,4 +1,4 @@
-% Ready for Task 06: the state after Task 05 (Create the solver with KinematicsSolver).
+% Ready for Task 06: the state after Task 05 (Measure the paw with addFrameVariables).
 run("reset_t05.m");
 
-ks = simscape.multibody.KinematicsSolver(mdl);
+addFrameVariables(ks, "Paw", "translation", mdl + "/World/W", mdl + "/fl_foot/F");

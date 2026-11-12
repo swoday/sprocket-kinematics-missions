@@ -6,7 +6,7 @@ A marketplace for the [Interactive Missions](https://github.com/matlab/agentic-l
 
 **Teach a Robot Dog to High-Five with KinematicsSolver**
 
-The learner imports Sprocket, a robot dog built as a real CAD assembly, into Simscape Multibody and poses him with `simscape.multibody.KinematicsSolver`. It has 29 small tasks, one action each, and takes about 75 minutes. It is written for people who know MATLAB and have no Simscape Multibody, robotics or CAD background. Every task gives the same four things: the background, the function that you need, why you need it, and your task with the exact command. The first task shows you how to work through the mission. A guide opens in the MATLAB Editor when the mission starts, and you can ask the tutor for a hint at any time: the first hint of every task is the exact command.
+The learner imports Sprocket, a robot dog built as a real CAD assembly, into Simscape Multibody and poses him with `simscape.multibody.KinematicsSolver`. It has 14 tasks and takes about 60 minutes. It is written for people who know MATLAB and have no Simscape Multibody, robotics or CAD background. Every task gives the same four things: the background, the function that you need, why you need it, and your task with the exact command. The guide opens with how to work through the mission. A guide opens in the MATLAB Editor when the mission starts, and you can ask the tutor for a hint at any time: the first hint of every task is the exact command.
 
 **Status: draft.** The URDF imports, the model opens in MATLAB, and the marketplace registers in the app. The ten-row check script and a full play-through with the tutor are still to be confirmed.
 
@@ -39,7 +39,7 @@ It only creates the file when it is missing, so existing marketplaces are left a
 
 ### How the tutor decides what to show
 
-The tutor follows its own skill, which the toolbox copies into your mission workspace. With the standard skill, the tutor presents the goal of each task and gives one hint each time you ask. This mission is built for that. Each task is one action, and its title names the function to use. You get the exact command in two ways that need no change to the tutor:
+The tutor follows its own skill, which the toolbox copies into your mission workspace. With the standard skill, the tutor presents the goal of each task and gives one hint each time you ask. This mission is built for that. Each task is one idea with one to three commands, and its title names the function to use. You get the exact command in two ways that need no change to the tutor:
 
 - **The guide.** When the mission starts, `Sprocket_guide.md` opens in the MATLAB Editor. It is a Markdown file that lists every task: where to work, the exact command, what it does and why. Type or paste each command in the Command Window. The copy in your workspace folder is yours, so you can write notes in it, and you can open it in any Markdown viewer.
 - **Hints.** The first hint of every task is the exact command, with what it does and why. Ask the tutor for a hint whenever you want to be shown what to do.
@@ -62,14 +62,13 @@ To undo it, run `copyfile(backup,skill)`. This changes your local copy of the to
 
 | Tasks | Stage | Idea |
 |---|---|---|
-| 1 | Open the guide and learn how to work | Every task has four parts: background, the function, why, your task |
-| 2 to 4 | Import the CAD assembly and look at it | A URDF file and its part files become a Simscape Multibody model |
-| 5 to 7 | Create the solver and find the leg joints | The solver names joint variables itself; they are not the joint names |
-| 8 to 11 | Tell the solver where the paw is | Frame variables measure one frame from another |
-| 12 to 15 | Forward kinematics into the ready stance | Joint angles in, paw position out |
-| 16 to 20 | Inverse kinematics to the pad | Paw position in, joint angles out |
-| 21 to 23 | Pick the pose the real joints can reach | The solver ignores joint limits; an initial guess picks the answer |
-| 24 to 29 | Plan the move from stance to high-five | Solve along a path, each answer seeding the next |
+| 1 to 2 | Import the CAD assembly and look at it | A URDF file and its part files become a Simscape Multibody model |
+| 3 to 4 | Create the solver and find the leg joints | The solver names joint variables itself; they are not the joint names |
+| 5 to 6 | Tell the solver where the paw is | Frame variables measure one frame from another |
+| 7 to 8 | Forward kinematics into the ready stance | Joint angles in, paw position out |
+| 9 to 10 | Inverse kinematics to the pad | Paw position in, joint angles out |
+| 11 | Pick the pose the real joints can reach | The solver ignores joint limits; an initial guess picks the answer |
+| 12 to 14 | Plan the move from stance to high-five | Solve along a path, each answer seeding the next |
 
 ## What is in this repository
 
@@ -89,7 +88,7 @@ Spoiler warning for learners: `matlab/` and the hints in `mission.yaml` contain 
 | To do this | Run |
 |---|---|
 | Check the mission end to end in MATLAB | `matlab/verify_sprocket_mission.m` (ten rows, all should pass) |
-| Change a task, the guide or a reset script | Edit the task list in `tools/build_mission.py`, then run `python3 tools/build_mission.py`. It writes `mission.yaml`, `Sprocket_guide.md` and the reset scripts together |
+| Change a task, the guide or a reset script | Edit the task list in `tools/mission_tasks.py`, then run `python3 tools/build_mission.py`. It writes `mission.yaml`, `Sprocket_guide.md` and the reset scripts together |
 | Check the mission files without MATLAB | `python3 tools/validate_mission.py` (needs PyYAML) |
 | Change the geometry | `pip install cadquery`, then `python cad/build_sprocket.py` |
 | Refresh the reference numbers and the viewer | `python3 cad/kinematics.py`, then `python3 viewer/build_viewer.py` |
