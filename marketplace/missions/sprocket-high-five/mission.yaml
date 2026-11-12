@@ -14,11 +14,13 @@ objective: >
   Sprocket from his Computer-Aided Design (CAD) files, solved both problems,
   and picked the answer that his real joints can reach. This mission assumes
   only that you can type commands at the MATLAB prompt. You are never expected
-  to know a command in advance. Ask Ada for a hint at any time, as often as
-  you like. Each hint is one complete step. It says whether to work in MATLAB
-  or in Simulink, gives the exact command, and explains what the command does
-  and why you need it. Before you begin, think about your own leg. When you
-  bend your knee, does your foot move up or down?
+  to know a command in advance. When the mission starts, a step-by-step guide
+  named Sprocket_guide opens in the MATLAB Editor. It lists every step of
+  every task: whether to work in MATLAB or in Simulink, the exact command,
+  what the command does and why you need it. You can also ask Ada for a hint
+  at any time, and each hint is one complete step. Before you begin, think
+  about your own leg. When you bend your knee, does your foot move up or
+  down?
 supported_matlab_releases: [R2024b, R2025a, R2025b, R2026a, R2026b]
 required_capabilities: [MATLAB, Simulink, Simscape, Simscape Multibody, MATLAB MCP, Simulink Agentic Toolkit]
 write_mode: read_inspect
@@ -58,9 +60,11 @@ setup:
     geometry, so the import works from any current folder. Leaves two
     variables in the MATLAB workspace: urdfFile, the full path of that URDF
     file, and padPosition, the 1-by-3 point in metres (world frame) that the
-    paw centre must reach. No model is created and no solver exists yet.
-    Construction variables are cleared. Run via run_matlab_file at session
-    start.
+    paw centre must reach. It also copies the step-by-step guide
+    Sprocket_guide.m into the learner workspace, opens it in the MATLAB
+    Editor, and leaves its full path in the variable guideFile. No model is
+    created and no solver exists yet. Construction variables are cleared. Run
+    via run_matlab_file at session start.
 
 runtime_validation:
   setup:
@@ -74,6 +78,9 @@ runtime_validation:
       - type: matlab_expression
         description: The staged URDF file exists
         code: "isfile(urdfFile)"
+      - type: matlab_expression
+        description: The step-by-step guide was copied into the workspace
+        code: "isfile(guideFile)"
       - type: workspace_absent
         name: cadFolder
   resets:
@@ -147,6 +154,11 @@ discovery:
 #   which function to use or where to click.
 # - For the opening prediction question, use the question at the end of the
 #   objective, about bending a knee. Do not ask what the solver will do.
+# - The setup script opens a guide named Sprocket_guide.m in the learner's
+#   MATLAB Editor. It holds the same numbered steps as the instructions, one
+#   section per step, under the headings TASK 1 to TASK 7. When you present
+#   a task, tell the learner which TASK heading to look at. The guide is the
+#   learner's own copy, so they may run its sections and write notes in it.
 # - Present every task instruction in full: the story, the explanation of
 #   the new idea, the numbered steps with their commands, and the question.
 #   The numbered steps and commands are the learner-facing task as the
@@ -242,6 +254,9 @@ tasks:
       model as a diagram of blocks. Every step tells you which one to use,
       what the command does and why you need it.
 
+      The guide that is open in the MATLAB Editor shows the same steps, under
+      the heading for this task.
+
       Your steps:
 
       1. In MATLAB: type `smimport(urdfFile)` in the Command Window and press
@@ -331,6 +346,9 @@ tasks:
       ID of its own, such as j5.Rz.q, which reads as joint 5, rotation about
       the z axis of that joint, position. Before you can move the front-left
       leg, you have to find out which IDs belong to it.
+
+      The guide that is open in the MATLAB Editor shows the same steps, under
+      the heading for this task.
 
       Your steps:
 
@@ -425,6 +443,9 @@ tasks:
       you ask the solver to measure the frame of the paw from the world
       frame. That measurement is called a frame variable.
 
+      The guide that is open in the MATLAB Editor shows the same steps, under
+      the heading for this task.
+
       Your steps:
 
       1. In Simulink: in the Sprocket block diagram, find the block named
@@ -513,6 +534,9 @@ tasks:
       Before you start, make a prediction. With the leg hanging straight, the
       paw is as low as it can go. Will bending the joints make the paw end up
       higher or lower? Tell me your guess.
+
+      The guide that is open in the MATLAB Editor shows the same steps, under
+      the heading for this task.
 
       Your steps:
 
@@ -613,6 +637,9 @@ tasks:
       the paw lands on the target. A number called the status flag tells you
       how the search went.
 
+      The guide that is open in the MATLAB Editor shows the same steps, under
+      the heading for this task.
+
       Your steps:
 
       1. In MATLAB: type
@@ -708,6 +735,9 @@ tasks:
       initial guess is a starting pose that you choose, so that the search
       ends at the answer that you want.
 
+      The guide that is open in the MATLAB Editor shows the same steps, under
+      the heading for this task.
+
       Your steps:
 
       1. In MATLAB: type `qFirst` and press Enter. What it does: typing the
@@ -792,6 +822,9 @@ tasks:
       straight line from pawStance to padPosition. Store the joint angles for
       each point in a matrix named qPath. Finish with a figure and a legend
       that show the three angles along the path.
+
+      The guide that is open in the MATLAB Editor shows the same steps, under
+      the heading for this task.
 
       Your steps:
 

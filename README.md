@@ -6,7 +6,7 @@ A marketplace for the [Interactive Missions](https://github.com/matlab/agentic-l
 
 **Teach a Robot Dog to High-Five with KinematicsSolver**
 
-The learner imports Sprocket, a robot dog built as a real CAD assembly, into Simscape Multibody and poses him with `simscape.multibody.KinematicsSolver`. Seven tasks, about 60 minutes. You need no robotics, CAD or Simscape Multibody background: every task tells the story, explains each new word, gives numbered steps with the exact commands, and ends with one question. Each step says whether to work in MATLAB or in Simulink, what the command does and why you need it. Ask the tutor for a hint whenever you want to be shown what to do: every hint is one complete step.
+The learner imports Sprocket, a robot dog built as a real CAD assembly, into Simscape Multibody and poses him with `simscape.multibody.KinematicsSolver`. Seven tasks, about 60 minutes. You need no robotics, CAD or Simscape Multibody background: every task tells the story, explains each new word, gives numbered steps with the exact commands, and ends with one question. Each step says whether to work in MATLAB or in Simulink, what the command does and why you need it. A step-by-step guide opens in the MATLAB Editor when the mission starts, and you can ask the tutor for a hint at any time: every hint is one complete step.
 
 **Status: draft.** The URDF imports, the model opens in MATLAB, and the marketplace registers in the app. The ten-row check script and a full play-through with the tutor are still to be confirmed.
 
@@ -39,9 +39,14 @@ It only creates the file when it is missing, so existing marketplaces are left a
 
 ### How the tutor decides what to show
 
-The tutor follows its own skill, which the toolbox copies into your mission workspace. With the standard skill, the tutor presents the goal of each task and gives one hint each time you ask. In this mission every hint is a complete step: where to work, the exact command, what it does and why. Ask for a hint whenever you want to be shown what to do.
+The tutor follows its own skill, which the toolbox copies into your mission workspace. With the standard skill, the tutor presents the goal of each task and gives one hint each time you ask. This mission gives you the steps in two ways that need no change to the tutor:
 
-If you want the tutor to show the numbered steps of every task up front, add the guided walkthrough section in `docs/guided-mode-addendum.md` to the tutor skill of your installed toolbox. It only takes effect for missions that declare `teaching_mode: guided_walkthrough`. Run this once in MATLAB, then start the mission again:
+- **The guide.** When the mission starts, `Sprocket_guide.m` opens in the MATLAB Editor. It lists every step of every task: where to work, the exact command, what it does and why. Type each command in the Command Window, or click inside a step and press Ctrl+Enter to run only that step. The copy in your workspace folder is yours, so you can write notes in it.
+- **Hints.** Every hint is a complete step. Ask the tutor for a hint whenever you want to be shown what to do.
+
+The tutor still checks each task, answers your questions and asks one question per task.
+
+There is also an optional change to the tutor itself. If you want the tutor to show the numbered steps of every task up front, add the guided walkthrough section in `docs/guided-mode-addendum.md` to the tutor skill of your installed toolbox. It only takes effect for missions that declare `teaching_mode: guided_walkthrough`. Run this once in MATLAB, then start the mission again:
 
 ```matlab
 skill = fullfile(interactiveMissions.internal.toolboxRoot(),"src","skills","mission-tutoring","SKILL.md");

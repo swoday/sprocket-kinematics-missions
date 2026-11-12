@@ -57,8 +57,24 @@ writelines(urdfText, urdfFile);
 % metres, measured in the world frame.
 padPosition = [0.47 0.19 0.44];
 
+%% Give the learner the step-by-step guide
+% The guide lists every step of every task: where to work, the command,
+% what it does and why. The learner gets a copy in the workspace folder, so
+% that notes and edits never touch the copied mission files. An existing
+% copy is kept, because it may hold the learner's notes.
+guideFile = fullfile(workFolder, "Sprocket_guide.m");
+if ~isfile(guideFile)
+    copyfile(fullfile(cadFolder, "Sprocket_guide.m"), guideFile);
+end
+try
+    edit(guideFile);    % opens the guide in the MATLAB Editor
+catch
+    % MATLAB may be running without a desktop. The guide is still on disk.
+end
+
 %% Clean up internal variables
 clear resetName scriptFolder candidates isCad info cadFolder
 clear contentParent contentLeaf workFolder partsFolder urdfText
 
 disp("Sprocket is on the stand. His URDF file is " + urdfFile);
+disp("The step-by-step guide is open in the MATLAB Editor: " + guideFile);

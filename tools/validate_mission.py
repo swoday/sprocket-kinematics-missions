@@ -182,6 +182,30 @@ def main():
         if len(t["hints"]) != 3 or "`" not in " ".join(t["hints"][:2]):
             weak_hints.append(f"{t['id']}: needs 3 hints with a command in the first two")
     check("every hint is a complete step: where, action, what it does", not weak_hints, str(weak_hints))
+    # The guide that setup opens in the MATLAB Editor does not depend on the tutor.
+    guide_path = RESET / "Sprocket_guide.m"
+    guide = guide_path.read_text(encoding="utf-8") if guide_path.is_file() else ""
+    squeeze = lambda s: re.sub(r"\s+", "", s)
+    missing_cmds = sorted({f"{t['id']}: {c}" for t in tasks
+                           for c in re.findall(r"`([^`]+)`", t["instruction"])
+                           if squeeze(c) not in squeeze(guide)})
+    check("the guide has a TASK heading for every task",
+          all(re.search(rf"(?m)^%% TASK {i}\. ", guide) for i in range(1, len(tasks) + 1)))
+    check("every command in the instructions is also in the guide", bool(guide) and not missing_cmds, str(missing_cmds))
+    guide_steps = re.findall(r"(?m)^%% Task (\d+), step (\d+)\. In (MATLAB|Simulink)$", guide)
+    yaml_steps = [(str(i), n, w) for i, t in enumerate(tasks, 1)
+                  for n, w in re.findall(r"(?m)^(\d+)\. In (MATLAB|Simulink):", t["instruction"])]
+    check("the guide and the instructions have the same steps in the same places",
+          guide_steps == yaml_steps, f"guide {len(guide_steps)} steps, instructions {len(yaml_steps)} steps")
+    guide_comments = "\n".join(l for l in guide.splitlines() if l.lstrip().startswith("%"))
+    guide_style = sorted(set(re.findall(
+        r"—|–|\s-\s|\b\w+n't\b|\b(?:it|that|you|we|they|he|she|let|here|there|what)'(?:s|ll|re|ve|d)\b",
+        guide_comments, re.I)))
+    check("the guide text has no dashes and no contractions (house style)", not guide_style, str(guide_style))
+    setup_text = (MISSION_DIR / m["setup"]["script"]).read_text(encoding="utf-8")
+    check("setup copies the guide, opens it and leaves guideFile",
+          "Sprocket_guide.m" in setup_text and "edit(guideFile)" in setup_text
+          and not re.search(r"(?m)^clear .*\bguideFile\b", setup_text))
     uses_simulink = [t["id"] for t in tasks if "In Simulink:" in t["instruction"]]
     check("the mission has steps in both MATLAB and Simulink", len(uses_simulink) >= 2, str(uses_simulink))
     no_question = [t["id"] for t in tasks
