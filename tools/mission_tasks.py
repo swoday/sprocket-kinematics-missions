@@ -485,32 +485,45 @@ TASKS = [
         ],
     ),
     dict(
-        title="Plot the path and watch the high-five with viewSolution", where="MATLAB", lo=["lo06"],
+        title="Plot the path and replay the high-five with viewSolution", where="MATLAB", lo=["lo06"],
         involves=["command", "output_interpretation"],
-        background="""A figure shows at a glance whether the planned move is smooth. The last solve in the loop
-        was the last point of the path, which is the pad, so the viewer now shows the end of the move.""",
+        background="""A figure shows at a glance whether the planned move is smooth. The viewer is different: it
+        shows one pose, the one from the most recent `solve`, and it does not play a move on its own. To see
+        Sprocket move, you show the poses of the path one after the other, like the pages of a flip book.""",
         function="""`plot` draws one line for each column of `qPath`, and `legend` labels the lines. `viewSolution`
-        shows the pose from the last solve.""",
-        syntax=["plot(s, qPath)", "legend(name1, name2, name3)", "viewSolution(ks)"],
-        why="""a sudden jump in a line would mean that a joint flipped between two neighbouring points. The
-        viewer shows the moment that the whole mission was for.""",
-        task="draw the three joint angles along the path in a figure with a legend. Then open the viewer one last time.",
-        commands=['plot(s,qPath); legend("abduct","pitch","knee")', "viewSolution(ks)"],
+        redraws the viewer with the pose from the most recent `solve`. A loop that calls `solve` and then
+        `viewSolution` for every point of the path plays the move. Each `solve` starts from the answer that you
+        stored in `qPath`, so it finds the same pose again at once. `pause(0.1)` waits a tenth of a second so that
+        you can see each pose.""",
+        syntax=["plot(s, qPath)", "legend(name1, name2, name3)", "for k = 1:n", "    solve(ks, targetRow, guessRow);",
+                "    viewSolution(ks);", "    pause(seconds);", "end"],
+        why="""a sudden jump in a line would mean that a joint flipped between two neighbouring points. The replay
+        shows the moment that the whole mission was for: Sprocket raises his paw from the ready stance to the pad.""",
+        task="""draw the three joint angles along the path in a figure with a legend. Then replay the move in the
+        viewer: for every point of the path, solve again with the stored answer as the guess, show the pose and
+        pause briefly. Place the Multibody Explorer window where you can see it before you run the section.""",
+        commands=['plot(s,qPath); legend("abduct","pitch","knee")',
+                  "for k = 1:n, solve(ks,pawPath(k,:),qPath(k,:)); viewSolution(ks); pause(0.1); end"],
         question="Look at the three lines in your figure. Are they smooth, or does any line jump suddenly?",
         checks=[
             ("evaluate_matlab_code", """inspect all open figures, not only gcf, and find one with a legend and at
              least three plotted lines whose values match the three columns of the current qPath"""),
-            ("confirm", """The learner says that the three lines are smooth, with no sudden jump. Share the
-             takeaway: a jump would mean that the knee flipped between two neighbouring points, and starting each
-             search from the previous answer is what prevents it. Then congratulate the learner, because the
-             viewer shows Sprocket giving a high-five, and close with a short summary of what they did: import,
-             solver, frame variables, forward kinematics, inverse kinematics, initial guess, path."""),
+            ("confirm", """The learner says that the three lines are smooth, with no sudden jump, and that they saw
+             Sprocket raise his paw to the pad in the viewer. If the learner did not see the paw move, ask them to
+             place the Multibody Explorer window next to MATLAB and to run the replay loop again, with `pause(0.3)`
+             if the move was too fast to see. Share the takeaway: a jump would mean that the knee flipped between two
+             neighbouring points, and starting each search from the previous answer is what prevents it. Then
+             congratulate the learner, because they have just watched Sprocket give a high-five, and close with a
+             short summary of what they did: import, solver, frame variables, forward kinematics, inverse
+             kinematics, initial guess, path."""),
         ],
-        description="A figure shows the three joint angles along the path, and the learner has seen Sprocket give a high-five.",
+        description="A figure shows the three joint angles along the path, and the learner has watched Sprocket raise his paw to the pad in the viewer.",
         h2="""The names in `legend` are in the same order as the columns of `qPath`: hip abduction, hip pitch,
-        knee. If the paw is not on the pad in the viewer, run the loop of the previous task again.""",
+        knee. The viewer shows one pose for each call of `viewSolution`, so the replay loop needs `solve`, then
+        `viewSolution`, then `pause` for every point. If the move is too fast to see, use `pause(0.3)`.""",
         h3="""A figure window opens with three smooth lines, and the knee line stays below zero from start to
-        end. The viewer shows Sprocket with his front-left paw pressed against the round pad.""",
+        end. In the viewer, Sprocket lifts his front-left paw from the ready stance and presses it against the
+        round pad, in 25 small steps.""",
         reset=['figure; plot(s, qPath); legend("abduct", "pitch", "knee");'],
     ),
 ]

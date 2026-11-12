@@ -10,7 +10,7 @@ The learner imports Sprocket, a robot dog built as a real CAD assembly, into Sim
 
 You work in a live script. When the mission starts, `sprocket_high_five.m` opens in the Live Editor. It has one section for each task, with the background, the function and an empty code area. The tutor gives you the task in the chat. You type your code in the section, run it, and tell the tutor. You can ask the tutor for a hint at any time: the first hint of every task explains the function again and gives the exact commands. The exact commands of every task are also in the Solutions section at the bottom of the live script, so you can try first and still look.
 
-**Status: draft.** The URDF imports, the model opens in MATLAB, and the marketplace registers in the app. The ten-row check script and a full play-through with the tutor are still to be confirmed.
+**Status: draft.** The URDF imports, the model opens in MATLAB, the marketplace registers in the app, and all 14 tasks pass in a play-through with the tutor. The replay of the move in the last task and the ten-row check script are still to be confirmed.
 
 ## Run the mission
 
@@ -76,7 +76,7 @@ To undo it, run `copyfile(backup,skill)`. This changes your local copy of the to
 | 7 to 8 | Forward kinematics into the ready stance | Joint angles in, paw position out |
 | 9 to 10 | Inverse kinematics to the pad | Paw position in, joint angles out |
 | 11 | Pick the pose the real joints can reach | The solver ignores joint limits; an initial guess picks the answer |
-| 12 to 14 | Plan the move from stance to high-five | Solve along a path, each answer seeding the next |
+| 12 to 14 | Plan the move from stance to high-five | Solve along a path, each answer seeding the next. The viewer shows one pose at a time, so a loop replays the path to show the move |
 
 ## What is in this repository
 

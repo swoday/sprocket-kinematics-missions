@@ -74,7 +74,14 @@ xlabel("Fraction of the path from stance to pad")
 ylabel("Joint angle (deg)")
 legend("fl\_hip\_abduct", "fl\_hip\_pitch", "fl\_knee", "Location", "best")
 title("Sprocket: joint angles for the high-five")
-viewSolution(ks);                                % the last solve: paw on the pad
+
+% The viewer shows one pose: the one from the most recent solve. To see the
+% move, replay the path. Each solve starts from the stored answer.
+for k = 1:n
+    solve(ks, pawPath(k, :), qPath(k, :));
+    viewSolution(ks);
+    pause(0.1);
+end
 
 %% Bonus. Measure from the pad instead of from the world
 % Frame variables can relate any two frames. Measured from the pad, "paw on

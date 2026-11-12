@@ -35,7 +35,7 @@ PROJECT = Path(__file__).resolve().parent.parent
 MISSION = PROJECT / "marketplace" / "missions" / "sprocket-high-five"
 RESET = MISSION / "task_reset_sprocket-high-five"
 
-VERSION = "3.2.0"
+VERSION = "3.2.1"
 WORKSHEET_NAME = "sprocket_worksheet.m"     # the plain text live script that ships in the reset folder
 LEARNER_SCRIPT = "sprocket_high_five.m"     # the name of the learner's copy in the workspace folder
 

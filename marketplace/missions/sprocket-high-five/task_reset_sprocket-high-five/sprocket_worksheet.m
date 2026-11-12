@@ -175,16 +175,20 @@
 % Task 13: type your code below this line.
 
 %%
-%[text] ## Task 14. Plot the path and watch the high-five with viewSolution
-%[text] **Background:** A figure shows at a glance whether the planned move is smooth. The last solve in the loop was the last point of the path, which is the pad, so the viewer now shows the end of the move.
-%[text] **The function:** `plot` draws one line for each column of `qPath`, and `legend` labels the lines. `viewSolution` shows the pose from the last solve.
+%[text] ## Task 14. Plot the path and replay the high-five with viewSolution
+%[text] **Background:** A figure shows at a glance whether the planned move is smooth. The viewer is different: it shows one pose, the one from the most recent `solve`, and it does not play a move on its own. To see Sprocket move, you show the poses of the path one after the other, like the pages of a flip book.
+%[text] **The function:** `plot` draws one line for each column of `qPath`, and `legend` labels the lines. `viewSolution` redraws the viewer with the pose from the most recent `solve`. A loop that calls `solve` and then `viewSolution` for every point of the path plays the move. Each `solve` starts from the answer that you stored in `qPath`, so it finds the same pose again at once. `pause(0.1)` waits a tenth of a second so that you can see each pose.
 %[text] **Syntax:**
 %[text] ```matlabCodeExample
 %[text] plot(s, qPath)
 %[text] legend(name1, name2, name3)
-%[text] viewSolution(ks)
+%[text] for k = 1:n
+%[text]     solve(ks, targetRow, guessRow);
+%[text]     viewSolution(ks);
+%[text]     pause(seconds);
+%[text] end
 %[text] ```
-%[text] **Why:** A sudden jump in a line would mean that a joint flipped between two neighbouring points. The viewer shows the moment that the whole mission was for.
+%[text] **Why:** A sudden jump in a line would mean that a joint flipped between two neighbouring points. The replay shows the moment that the whole mission was for: Sprocket raises his paw from the ready stance to the pad.
 %[text] **Your task:** Ada gives you the task in the chat. Type your code below, then run this section with `Ctrl+Enter`.
 % Task 14: type your code below this line.
 
@@ -251,10 +255,10 @@
 %[text] ```matlabCodeExample
 %[text] for k = 1:n, qk = solve(ks,pawPath(k,:),guess); qPath(k,:) = qk(:)'; guess = qk(:)'; end
 %[text] ```
-%[text] **Task 14. Plot the path and watch the high-five with viewSolution**
+%[text] **Task 14. Plot the path and replay the high-five with viewSolution**
 %[text] ```matlabCodeExample
 %[text] plot(s,qPath); legend("abduct","pitch","knee")
-%[text] viewSolution(ks)
+%[text] for k = 1:n, solve(ks,pawPath(k,:),qPath(k,:)); viewSolution(ks); pause(0.1); end
 %[text] ```
 
 %[appendix]{"version":"1.0"}

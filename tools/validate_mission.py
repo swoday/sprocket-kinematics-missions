@@ -290,10 +290,14 @@ def main():
                 or t["instruction"].count("Then answer this:") > 1]
     check("every question is checked by the tutor, with at most one per task", not mismatch, str(mismatch))
     solve_at = [i for i, t in enumerate(tasks) if any("solve(ks" in c for c in commands_of(t))]
-    view_at = [i for i, t in enumerate(tasks) if "viewSolution(ks)" in commands_of(t)]
+    view_at = [i for i, t in enumerate(tasks) if any("viewSolution(ks)" in c for c in commands_of(t))]
     unseen = [tasks[i]["id"] for i in solve_at if not any(i <= v <= i + 1 for v in view_at)]
     check("every solve is followed by viewSolution, in the same task or the next",
           len(view_at) >= 4 and not unseen, str(unseen))
+    replay = [c for c in commands_of(tasks[-1]) if c.startswith("for ")]
+    check("the last task replays the path: a loop that solves, redraws the viewer and pauses for every point",
+          len(replay) == 1 and all(part in replay[0] for part in ("solve(ks", "viewSolution(ks)", "pause(", "end")),
+          str(replay))
     learner_text = [m["objective"]] + [t["instruction"] for t in tasks] + [h for t in tasks for h in t["hints"]]
     style = sorted({w for txt in learner_text
                     for w in re.findall(r"—|–|\s-\s|\b\w+n't\b|\b(?:it|that|you|we|they|he|she|let|here|there|what)'(?:s|ll|re|ve|d)\b",
