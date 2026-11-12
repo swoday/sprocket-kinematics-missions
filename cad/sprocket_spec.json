@@ -1,0 +1,747 @@
+{
+  "units": {
+    "length": "m",
+    "angle": "deg",
+    "mass": "kg"
+  },
+  "pad_position_m": [
+    0.47,
+    0.19,
+    0.44
+  ],
+  "paw_radius_m": 0.028,
+  "leg_lengths_m": {
+    "upper": 0.22,
+    "lower": 0.22
+  },
+  "links": [
+    {
+      "name": "stand",
+      "mesh": "stand",
+      "rgba": [
+        0.45,
+        0.48,
+        0.53,
+        1.0
+      ],
+      "mass_kg": 32.7842
+    },
+    {
+      "name": "high_five_pad",
+      "mesh": "high_five_pad",
+      "rgba": [
+        0.9,
+        0.22,
+        0.2,
+        1.0
+      ],
+      "mass_kg": 0.1934
+    },
+    {
+      "name": "body",
+      "mesh": "body",
+      "rgba": [
+        0.93,
+        0.94,
+        0.96,
+        1.0
+      ],
+      "mass_kg": 3.7231
+    },
+    {
+      "name": "spine",
+      "mesh": "spine",
+      "rgba": [
+        0.17,
+        0.19,
+        0.22,
+        1.0
+      ],
+      "mass_kg": 0.4484
+    },
+    {
+      "name": "head",
+      "mesh": "head",
+      "rgba": [
+        0.93,
+        0.94,
+        0.96,
+        1.0
+      ],
+      "mass_kg": 0.9203
+    },
+    {
+      "name": "visor",
+      "mesh": "visor",
+      "rgba": [
+        0.1,
+        0.78,
+        0.92,
+        1.0
+      ],
+      "mass_kg": 0.0205
+    },
+    {
+      "name": "ears",
+      "mesh": "ears",
+      "rgba": [
+        1.0,
+        0.56,
+        0.02,
+        1.0
+      ],
+      "mass_kg": 0.0394
+    },
+    {
+      "name": "nose",
+      "mesh": "nose",
+      "rgba": [
+        0.17,
+        0.19,
+        0.22,
+        1.0
+      ],
+      "mass_kg": 0.008
+    },
+    {
+      "name": "collar",
+      "mesh": "collar",
+      "rgba": [
+        1.0,
+        0.56,
+        0.02,
+        1.0
+      ],
+      "mass_kg": 0.0486
+    },
+    {
+      "name": "tail",
+      "mesh": "tail",
+      "rgba": [
+        0.93,
+        0.94,
+        0.96,
+        1.0
+      ],
+      "mass_kg": 0.3099
+    },
+    {
+      "name": "tail_tip",
+      "mesh": "tail_tip",
+      "rgba": [
+        1.0,
+        0.56,
+        0.02,
+        1.0
+      ],
+      "mass_kg": 0.0328
+    },
+    {
+      "name": "fl_hip",
+      "mesh": "hip_left",
+      "rgba": [
+        0.17,
+        0.19,
+        0.22,
+        1.0
+      ],
+      "mass_kg": 1.4732
+    },
+    {
+      "name": "fl_upper_leg",
+      "mesh": "upper_leg_left",
+      "rgba": [
+        0.93,
+        0.94,
+        0.96,
+        1.0
+      ],
+      "mass_kg": 0.736
+    },
+    {
+      "name": "fl_lower_leg",
+      "mesh": "lower_leg",
+      "rgba": [
+        0.17,
+        0.19,
+        0.22,
+        1.0
+      ],
+      "mass_kg": 0.243
+    },
+    {
+      "name": "fl_paw",
+      "mesh": "paw",
+      "rgba": [
+        1.0,
+        0.56,
+        0.02,
+        1.0
+      ],
+      "mass_kg": 0.1013
+    },
+    {
+      "name": "fr_hip",
+      "mesh": "hip_right",
+      "rgba": [
+        0.17,
+        0.19,
+        0.22,
+        1.0
+      ],
+      "mass_kg": 1.4732
+    },
+    {
+      "name": "fr_upper_leg",
+      "mesh": "upper_leg_right",
+      "rgba": [
+        0.93,
+        0.94,
+        0.96,
+        1.0
+      ],
+      "mass_kg": 0.736
+    },
+    {
+      "name": "fr_lower_leg",
+      "mesh": "lower_leg",
+      "rgba": [
+        0.17,
+        0.19,
+        0.22,
+        1.0
+      ],
+      "mass_kg": 0.243
+    },
+    {
+      "name": "fr_paw",
+      "mesh": "paw",
+      "rgba": [
+        1.0,
+        0.56,
+        0.02,
+        1.0
+      ],
+      "mass_kg": 0.1013
+    },
+    {
+      "name": "rl_hip",
+      "mesh": "hip_left",
+      "rgba": [
+        0.17,
+        0.19,
+        0.22,
+        1.0
+      ],
+      "mass_kg": 1.4732
+    },
+    {
+      "name": "rl_upper_leg",
+      "mesh": "upper_leg_left",
+      "rgba": [
+        0.93,
+        0.94,
+        0.96,
+        1.0
+      ],
+      "mass_kg": 0.736
+    },
+    {
+      "name": "rl_lower_leg",
+      "mesh": "lower_leg",
+      "rgba": [
+        0.17,
+        0.19,
+        0.22,
+        1.0
+      ],
+      "mass_kg": 0.243
+    },
+    {
+      "name": "rl_paw",
+      "mesh": "paw",
+      "rgba": [
+        1.0,
+        0.56,
+        0.02,
+        1.0
+      ],
+      "mass_kg": 0.1013
+    },
+    {
+      "name": "rr_hip",
+      "mesh": "hip_right",
+      "rgba": [
+        0.17,
+        0.19,
+        0.22,
+        1.0
+      ],
+      "mass_kg": 1.4732
+    },
+    {
+      "name": "rr_upper_leg",
+      "mesh": "upper_leg_right",
+      "rgba": [
+        0.93,
+        0.94,
+        0.96,
+        1.0
+      ],
+      "mass_kg": 0.736
+    },
+    {
+      "name": "rr_lower_leg",
+      "mesh": "lower_leg",
+      "rgba": [
+        0.17,
+        0.19,
+        0.22,
+        1.0
+      ],
+      "mass_kg": 0.243
+    },
+    {
+      "name": "rr_paw",
+      "mesh": "paw",
+      "rgba": [
+        1.0,
+        0.56,
+        0.02,
+        1.0
+      ],
+      "mass_kg": 0.1013
+    }
+  ],
+  "joints": [
+    {
+      "name": "body_mount",
+      "type": "fixed",
+      "parent": "stand",
+      "child": "body",
+      "xyz_m": [
+        0.0,
+        0.0,
+        0.52
+      ],
+      "axis": null,
+      "limits_deg": null
+    },
+    {
+      "name": "pad_mount",
+      "type": "fixed",
+      "parent": "stand",
+      "child": "high_five_pad",
+      "xyz_m": [
+        0.47,
+        0.19,
+        0.44
+      ],
+      "axis": null,
+      "limits_deg": null
+    },
+    {
+      "name": "spine_mount",
+      "type": "fixed",
+      "parent": "body",
+      "child": "spine",
+      "xyz_m": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": null,
+      "limits_deg": null
+    },
+    {
+      "name": "neck",
+      "type": "fixed",
+      "parent": "body",
+      "child": "head",
+      "xyz_m": [
+        0.238,
+        0.0,
+        0.04
+      ],
+      "axis": null,
+      "limits_deg": null
+    },
+    {
+      "name": "visor_mount",
+      "type": "fixed",
+      "parent": "head",
+      "child": "visor",
+      "xyz_m": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": null,
+      "limits_deg": null
+    },
+    {
+      "name": "ears_mount",
+      "type": "fixed",
+      "parent": "head",
+      "child": "ears",
+      "xyz_m": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": null,
+      "limits_deg": null
+    },
+    {
+      "name": "nose_mount",
+      "type": "fixed",
+      "parent": "head",
+      "child": "nose",
+      "xyz_m": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": null,
+      "limits_deg": null
+    },
+    {
+      "name": "collar_mount",
+      "type": "fixed",
+      "parent": "head",
+      "child": "collar",
+      "xyz_m": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": null,
+      "limits_deg": null
+    },
+    {
+      "name": "tail_wag",
+      "type": "revolute",
+      "parent": "body",
+      "child": "tail",
+      "xyz_m": [
+        -0.222,
+        0.0,
+        0.08
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "limits_deg": [
+        -50,
+        50
+      ]
+    },
+    {
+      "name": "tail_tip_mount",
+      "type": "fixed",
+      "parent": "tail",
+      "child": "tail_tip",
+      "xyz_m": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "axis": null,
+      "limits_deg": null
+    },
+    {
+      "name": "fl_hip_abduct",
+      "type": "revolute",
+      "parent": "body",
+      "child": "fl_hip",
+      "xyz_m": [
+        0.22,
+        0.075,
+        0.0
+      ],
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "limits_deg": [
+        -40,
+        40
+      ]
+    },
+    {
+      "name": "fl_hip_pitch",
+      "type": "revolute",
+      "parent": "fl_hip",
+      "child": "fl_upper_leg",
+      "xyz_m": [
+        0.0,
+        0.085,
+        0.0
+      ],
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "limits_deg": [
+        -150,
+        150
+      ]
+    },
+    {
+      "name": "fl_knee",
+      "type": "revolute",
+      "parent": "fl_upper_leg",
+      "child": "fl_lower_leg",
+      "xyz_m": [
+        0.0,
+        0.0,
+        -0.22
+      ],
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "limits_deg": [
+        -160,
+        5
+      ]
+    },
+    {
+      "name": "fl_foot",
+      "type": "fixed",
+      "parent": "fl_lower_leg",
+      "child": "fl_paw",
+      "xyz_m": [
+        0.0,
+        0.0,
+        -0.22
+      ],
+      "axis": null,
+      "limits_deg": null
+    },
+    {
+      "name": "fr_hip_abduct",
+      "type": "revolute",
+      "parent": "body",
+      "child": "fr_hip",
+      "xyz_m": [
+        0.22,
+        -0.075,
+        0.0
+      ],
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "limits_deg": [
+        -40,
+        40
+      ]
+    },
+    {
+      "name": "fr_hip_pitch",
+      "type": "revolute",
+      "parent": "fr_hip",
+      "child": "fr_upper_leg",
+      "xyz_m": [
+        0.0,
+        -0.085,
+        0.0
+      ],
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "limits_deg": [
+        -150,
+        150
+      ]
+    },
+    {
+      "name": "fr_knee",
+      "type": "revolute",
+      "parent": "fr_upper_leg",
+      "child": "fr_lower_leg",
+      "xyz_m": [
+        0.0,
+        0.0,
+        -0.22
+      ],
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "limits_deg": [
+        -160,
+        5
+      ]
+    },
+    {
+      "name": "fr_foot",
+      "type": "fixed",
+      "parent": "fr_lower_leg",
+      "child": "fr_paw",
+      "xyz_m": [
+        0.0,
+        0.0,
+        -0.22
+      ],
+      "axis": null,
+      "limits_deg": null
+    },
+    {
+      "name": "rl_hip_abduct",
+      "type": "revolute",
+      "parent": "body",
+      "child": "rl_hip",
+      "xyz_m": [
+        -0.22,
+        0.075,
+        0.0
+      ],
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "limits_deg": [
+        -40,
+        40
+      ]
+    },
+    {
+      "name": "rl_hip_pitch",
+      "type": "revolute",
+      "parent": "rl_hip",
+      "child": "rl_upper_leg",
+      "xyz_m": [
+        0.0,
+        0.085,
+        0.0
+      ],
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "limits_deg": [
+        -150,
+        150
+      ]
+    },
+    {
+      "name": "rl_knee",
+      "type": "revolute",
+      "parent": "rl_upper_leg",
+      "child": "rl_lower_leg",
+      "xyz_m": [
+        0.0,
+        0.0,
+        -0.22
+      ],
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "limits_deg": [
+        -160,
+        5
+      ]
+    },
+    {
+      "name": "rl_foot",
+      "type": "fixed",
+      "parent": "rl_lower_leg",
+      "child": "rl_paw",
+      "xyz_m": [
+        0.0,
+        0.0,
+        -0.22
+      ],
+      "axis": null,
+      "limits_deg": null
+    },
+    {
+      "name": "rr_hip_abduct",
+      "type": "revolute",
+      "parent": "body",
+      "child": "rr_hip",
+      "xyz_m": [
+        -0.22,
+        -0.075,
+        0.0
+      ],
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "limits_deg": [
+        -40,
+        40
+      ]
+    },
+    {
+      "name": "rr_hip_pitch",
+      "type": "revolute",
+      "parent": "rr_hip",
+      "child": "rr_upper_leg",
+      "xyz_m": [
+        0.0,
+        -0.085,
+        0.0
+      ],
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "limits_deg": [
+        -150,
+        150
+      ]
+    },
+    {
+      "name": "rr_knee",
+      "type": "revolute",
+      "parent": "rr_upper_leg",
+      "child": "rr_lower_leg",
+      "xyz_m": [
+        0.0,
+        0.0,
+        -0.22
+      ],
+      "axis": [
+        0,
+        1,
+        0
+      ],
+      "limits_deg": [
+        -160,
+        5
+      ]
+    },
+    {
+      "name": "rr_foot",
+      "type": "fixed",
+      "parent": "rr_lower_leg",
+      "child": "rr_paw",
+      "xyz_m": [
+        0.0,
+        0.0,
+        -0.22
+      ],
+      "axis": null,
+      "limits_deg": null
+    }
+  ]
+}

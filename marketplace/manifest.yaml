@@ -1,0 +1,20 @@
+schema_version: "2.0"
+id: "sprocket-kinematics-missions"
+title: "Sprocket Kinematics Missions"
+source_url: ""
+content_version: "0.1.0"
+minimum_toolbox_version: "0.2.0"
+summary: >
+  One Simscape Multibody mission that teaches forward and inverse kinematics
+  with KinematicsSolver on a robot dog imported from a CAD assembly.
+publisher: "Sprocket Kinematics Missions (draft)"
+adapters:
+  - id: "generic"
+  - id: "codex"
+  - id: "claude-code"
+  - id: "gemini-cli"
+  - id: "github-copilot-vscode"
+  - id: "github-copilot-cli"
+missions:
+  - id: "sprocket-high-five"
+    path: "missions/sprocket-high-five/mission.yaml"

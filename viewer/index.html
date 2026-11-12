@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sprocket kinematics viewer</title>
+<style>
+  :root {
+    --bg0: #0b0f15; --bg1: #1a2331; --panel: rgba(16, 22, 32, 0.82); --line: rgba(255,255,255,0.10);
+    --text: #e9edf3; --muted: #93a0b4; --amber: #ffb30d; --cyan: #29c7ea; --red: #ff5a4f; --green: #3ddc97;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; background: var(--bg0); color: var(--text);
+    font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif; overflow: hidden; }
+  #stage { position: fixed; inset: 0; background: radial-gradient(120% 90% at 35% 20%, var(--bg1) 0%, var(--bg0) 70%); }
+  canvas { display: block; width: 100%; height: 100%; }
+  .panel { position: fixed; background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  #title { top: 16px; left: 16px; padding: 12px 16px; max-width: 380px; }
+  #title h1 { margin: 0 0 2px; font-size: 17px; letter-spacing: 0.01em; }
+  #title p { margin: 0; color: var(--muted); font-size: 12.5px; }
+  #side { top: 16px; right: 16px; width: 318px; padding: 14px; max-height: calc(100% - 32px); overflow: auto; }
+  #side h2 { margin: 0 0 8px; font-size: 11px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); }
+  .btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  button { font: inherit; color: var(--text); background: rgba(255,255,255,0.06); border: 1px solid var(--line);
+    border-radius: 10px; padding: 9px 10px; cursor: pointer; text-align: left; transition: background .15s, border-color .15s; }
+  button:hover { background: rgba(255,255,255,0.11); }
+  button.on { border-color: var(--amber); background: rgba(255,179,13,0.14); }
+  button small { display: block; color: var(--muted); font-size: 11px; margin-top: 1px; }
+  .row { display: grid; grid-template-columns: 96px 1fr 54px; gap: 8px; align-items: center; margin: 7px 0; }
+  .row label { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; color: var(--muted); }
+  .row output { font-variant-numeric: tabular-nums; text-align: right; font-size: 12.5px; }
+  input[type=range] { width: 100%; accent-color: var(--amber); }
+  .readout { margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: rgba(0,0,0,0.28); border: 1px solid var(--line);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; font-variant-numeric: tabular-nums; }
+  .readout b { color: var(--amber); font-weight: 600; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .chip { font-size: 11.5px; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+  .chip.good { color: var(--green); border-color: rgba(61,220,151,0.5); }
+  .chip.bad { color: var(--red); border-color: rgba(255,90,79,0.55); }
+  #code { left: 16px; bottom: 16px; width: min(560px, calc(100% - 366px)); padding: 12px 16px; }
+  #code h3 { margin: 0 0 6px; font-size: 13px; }
+  #code pre { margin: 0; white-space: pre-wrap; font: 12.5px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; color: #cfe3ff; }
+  #code .c { color: #6f8198; }
+  body.bare .panel { display: none; }
+  @media (max-width: 760px) {
+    #side { top: auto; bottom: 0; right: 0; left: 0; width: auto; max-height: 46%; border-radius: 14px 14px 0 0; }
+    #code { display: none; }
+    #title { max-width: calc(100% - 32px); }
+  }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+
+<div id="title" class="panel">
+  <h1>Sprocket</h1>
+  <p>A URDF and STEP CAD assembly for a Simscape Multibody learning mission. Drag to orbit, scroll to zoom.</p>
+</div>
+
+<div id="side" class="panel">
+  <h2>Play</h2>
+  <div class="btns">
+    <button data-clip="mission">Run the mission<small>stand, stance, high-five</small></button>
+    <button data-clip="branches">Two answers<small>same target, other knee</small></button>
+    <button data-clip="trot">Trot<small>inverse kinematics x4</small></button>
+    <button data-clip="reset">Power down<small>all joints to zero</small></button>
+  </div>
+  <h2>Front-left leg joints (deg)</h2>
+  <div class="row"><label>fl_hip_abduct</label><input id="s0" type="range" min="-40" max="40" step="0.5" value="0"><output id="o0">0.0</output></div>
+  <div class="row"><label>fl_hip_pitch</label><input id="s1" type="range" min="-150" max="150" step="0.5" value="0"><output id="o1">0.0</output></div>
+  <div class="row"><label>fl_knee</label><input id="s2" type="range" min="-160" max="160" step="0.5" value="0"><output id="o2">0.0</output></div>
+  <div class="readout">
+    <div>paw &nbsp;= [<b id="px">0</b>, <b id="py">0</b>, <b id="pz">0</b>] m</div>
+    <div>pad &nbsp;= [<span id="tx"></span>, <span id="ty"></span>, <span id="tz"></span>] m</div>
+    <div>miss = <span id="miss">0</span> mm</div>
+  </div>
+  <div class="chips"><span id="chipTarget" class="chip">target not reached</span><span id="chipLimit" class="chip good">inside joint limits</span></div>
+</div>
+
+<div id="code" class="panel">
+  <h3 id="codeTitle">Powered down on the stand</h3>
+  <pre id="codeBody"></pre>
+</div>
+
+<script src="sprocket_data.js"></script>
+<script src="sprocket_motion.js"></script>
+<script type="importmap">
+{ "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }
+</script>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+
+const { spec, meshes } = window.SPROCKET;
+const motion = window.SPROCKET_MOTION;
+const params = new URLSearchParams(location.search);
+if (params.get("ui") === "0") document.body.classList.add("bare");
+
+// ---------- renderer and studio ----------
+const stage = document.getElementById("stage");
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.14;
+stage.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture;
+
+const camera = new THREE.PerspectiveCamera(34, 1, 0.05, 50);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.maxPolarAngle = Math.PI * 0.495;
+controls.minDistance = 0.6;
+controls.maxDistance = 6;
+const u2t = (x, y, z) => new THREE.Vector3(x, z, -y);   // URDF (z up) to three.js (y up)
+const cams = {
+  hero: [u2t(1.28, 1.92, 0.90), u2t(0.10, 0.02, 0.38)],
+  side: [u2t(0.26, 2.25, 0.50), u2t(0.10, 0.0, 0.38)],
+  front: [u2t(2.2, 0.35, 0.55), u2t(0.1, 0.05, 0.38)],
+  rear: [u2t(-1.25, 1.75, 0.98), u2t(-0.02, 0.0, 0.44)],
+};
+const [camPos, camTarget] = cams[params.get("cam")] || cams.hero;
+const zoom = parseFloat(params.get("zoom")) || (document.body.classList.contains("bare") ? 0.8 : 1);
+camera.position.copy(camTarget).add(camPos.clone().sub(camTarget).multiplyScalar(zoom));   // zoom < 1 moves the camera in
+controls.target.copy(camTarget);
+
+const key = new THREE.DirectionalLight(0xfff4e6, 3.1);
+key.position.copy(u2t(1.6, 1.2, 2.6));
+key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
+Object.assign(key.shadow.camera, { left: -1.4, right: 1.4, top: 1.4, bottom: -1.4, near: 0.1, far: 8 });
+key.shadow.bias = -0.0004;
+key.shadow.radius = 5;
+scene.add(key, new THREE.HemisphereLight(0xbfd6ff, 0x1a1f29, 0.55));
+const rim = new THREE.DirectionalLight(0x7fd8ff, 1.1);
+rim.position.copy(u2t(-2.2, -1.6, 1.4));
+scene.add(rim);
+
+const floor = new THREE.Mesh(new THREE.CircleGeometry(3.2, 96),
+  new THREE.MeshStandardMaterial({ color: 0x151b25, roughness: 0.92, metalness: 0.0 }));
+floor.rotation.x = -Math.PI / 2;
+floor.receiveShadow = true;
+scene.add(floor);
+const grid = new THREE.GridHelper(6.4, 64, 0x2a3546, 0x1c2431);
+grid.position.y = 0.0005;
+grid.material.transparent = true;
+grid.material.opacity = 0.55;
+scene.add(grid);
+
+// ---------- build the robot from the same description the URDF was written from ----------
+const robot = new THREE.Group();
+robot.rotation.x = -Math.PI / 2;          // z up becomes y up
+scene.add(robot);
+
+function decode(b64, Type) {
+  const bin = atob(b64), bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new Type(bytes.buffer);
+}
+const geoms = {};
+for (const [name, m] of Object.entries(meshes)) {
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.BufferAttribute(decode(m.p, Float32Array), 3));
+  g.setIndex(new THREE.BufferAttribute(decode(m.i, Uint32Array), 1));
+  g.computeVertexNormals();               // smooth inside each CAD face, crisp between faces
+  geoms[name] = g;
+}
+const look = {
+  high_five_pad: { roughness: 0.5, metalness: 0.0 },
+  nose: { roughness: 0.22, metalness: 0.3 },
+  stand: { roughness: 0.62, metalness: 0.25, color: 0x3b4350 },
+};
+const linkGroups = {}, jointPivots = {}, jointInfo = {};
+for (const l of spec.links) {
+  const grp = new THREE.Group();
+  const rough = l.rgba[0] > 0.8 && l.rgba[2] > 0.8 ? 0.38 : 0.55;
+  const mat = new THREE.MeshStandardMaterial(Object.assign(
+    { color: new THREE.Color(l.rgba[0], l.rgba[1], l.rgba[2]), roughness: rough, metalness: l.rgba[0] < 0.3 ? 0.55 : 0.08 },
+    l.rgba[0] < 0.3 && l.rgba[2] > 0.85 ? { emissive: 0x1aa7c9, emissiveIntensity: 0.9, roughness: 0.25, metalness: 0.1 } : {},
+    look[l.name] || {}));
+  const mesh = new THREE.Mesh(geoms[l.mesh], mat);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  grp.add(mesh);
+  linkGroups[l.name] = grp;
+}
+robot.add(linkGroups.stand);
+for (const j of spec.joints) {
+  const pivot = new THREE.Group();
+  pivot.position.set(...j.xyz_m);
+  linkGroups[j.parent].add(pivot);
+  pivot.add(linkGroups[j.child]);
+  if (j.type === "revolute") {
+    jointPivots[j.name] = pivot;
+    jointInfo[j.name] = { axis: new THREE.Vector3(...j.axis), limits: j.limits_deg, value: 0 };
+  }
+}
+function setJoint(name, deg) {
+  jointInfo[name].value = deg;
+  jointPivots[name].setRotationFromAxisAngle(jointInfo[name].axis, THREE.MathUtils.degToRad(deg));
+}
+
+// frame triads: world frame at the stand origin, and the paw frame the solver tracks
+function triad(size) {
+  const g = new THREE.Group();
+  [[1, 0, 0, 0xff5a4f], [0, 1, 0, 0x3ddc97], [0, 0, 1, 0x4da3ff]].forEach(([x, y, z, c]) => {
+    const a = new THREE.ArrowHelper(new THREE.Vector3(x, y, z), new THREE.Vector3(), size, c, size * 0.24, size * 0.11);
+    a.line.material.depthTest = false; a.cone.material.depthTest = false; a.renderOrder = 5;
+    g.add(a);
+  });
+  return g;
+}
+const worldTriad = triad(0.22);
+worldTriad.position.set(0, 0, 0.021);   // the World frame origin: centre of the stand, on the floor
+linkGroups.stand.add(worldTriad);
+linkGroups.fl_paw.add(triad(0.085));
+const halo = new THREE.Mesh(new THREE.TorusGeometry(0.043, 0.0035, 12, 64),
+  new THREE.MeshBasicMaterial({ color: 0xffb30d }));
+halo.rotation.y = Math.PI / 2;
+halo.position.x = 0.0275;
+linkGroups.high_five_pad.add(halo);
+
+// ---------- read-outs ----------
+const LEG = ["fl_hip_abduct", "fl_hip_pitch", "fl_knee"];
+const pad = spec.pad_position_m;
+const $ = (id) => document.getElementById(id);
+["tx", "ty", "tz"].forEach((id, i) => $(id).textContent = pad[i].toFixed(3));
+const tmp = new THREE.Vector3();
+function pawWorld() {
+  linkGroups.fl_paw.getWorldPosition(tmp);
+  return [tmp.x, -tmp.z, tmp.y];           // back to URDF axes
+}
+function refresh() {
+  scene.updateMatrixWorld(true);
+  const p = pawWorld();
+  $("px").textContent = p[0].toFixed(3); $("py").textContent = p[1].toFixed(3); $("pz").textContent = p[2].toFixed(3);
+  const miss = Math.hypot(p[0] - pad[0], p[1] - pad[1], p[2] - pad[2]) * 1000;
+  $("miss").textContent = miss.toFixed(1);
+  const hit = miss < 1.0;
+  $("chipTarget").textContent = hit ? "paw on the pad" : "target not reached";
+  $("chipTarget").className = "chip" + (hit ? " good" : "");
+  halo.material.color.set(hit ? 0x3ddc97 : 0xffb30d);
+  const out = LEG.filter((n) => jointInfo[n].value < jointInfo[n].limits[0] - 1e-6 || jointInfo[n].value > jointInfo[n].limits[1] + 1e-6);
+  $("chipLimit").textContent = out.length ? out[0] + " is outside its limit" : "inside joint limits";
+  $("chipLimit").className = "chip " + (out.length ? "bad" : "good");
+  LEG.forEach((n, i) => { $("s" + i).value = jointInfo[n].value; $("o" + i).textContent = jointInfo[n].value.toFixed(1); });
+}
+LEG.forEach((n, i) => $("s" + i).addEventListener("input", (e) => { stop(); setJoint(n, parseFloat(e.target.value)); caption("manual"); refresh(); }));
+
+// ---------- captions: the MATLAB a learner types for what is on screen ----------
+const captions = {
+  idle: ["Powered down on the stand",
+    `<span class="c">% the CAD assembly becomes a Simscape Multibody model</span>
+smimport("Sprocket.urdf");
+ks = simscape.multibody.KinematicsSolver("Sprocket");
+jointPositionVariables(ks)`],
+  fk: ["Forward kinematics: joint angles in, paw position out",
+    `addFrameVariables(ks,"Paw","translation", ...
+    "Sprocket/World/W","Sprocket/fl_foot/F");
+addTargetVariables(ks,legIDs);   <span class="c">% the three leg joints</span>
+addOutputVariables(ks,pawIDs);   <span class="c">% Paw.Translation.x/y/z</span>
+[pawStance,status] = solve(ks,[0 40 -80])`],
+  ik: ["Inverse kinematics: paw position in, joint angles out",
+    `clearTargetVariables(ks); clearOutputVariables(ks);
+addTargetVariables(ks,pawIDs);
+addOutputVariables(ks,legIDs);
+addInitialGuessVariables(ks,legIDs);
+[q,status] = solve(ks,padPosition,[0 40 -80])`],
+  five: ["High-five",
+    `<span class="c">% status = 1: every target met, knee inside its limits</span>
+viewSolution(ks);`],
+  branches: ["Same target, two answers",
+    `<span class="c">% the guess decides which answer the solver lands on</span>
+solve(ks,padPosition,[0  40 -80])   <span class="c">% knee -103 deg, feasible</span>
+solve(ks,padPosition,[0 -120 80])   <span class="c">% knee +103 deg, past its +5 deg limit</span>
+<span class="c">% KinematicsSolver ignores joint limits. You have to check.</span>`],
+  trot: ["Trot: the same solve, four legs, every frame",
+    `for k = 1:n
+    [qk,flag(k)] = solve(ks,pawPath(k,:),guess);
+    guess = qk';   <span class="c">% previous answer seeds the next solve</span>
+end`],
+  manual: ["Your turn: this is forward kinematics by hand",
+    `<span class="c">% move the sliders, watch paw = [x, y, z] update</span>
+[paw,status] = solve(ks,[abduct pitch knee])`],
+};
+let captionKey = "";
+function caption(k) {
+  if (k === captionKey) return;
+  captionKey = k;
+  $("codeTitle").textContent = captions[k][0];
+  $("codeBody").innerHTML = captions[k][1];
+}
+
+// ---------- playback ----------
+let clip = null, clipName = "", t0 = 0, from = null;
+const FPS = 24, BLEND = 0.7;
+function snapshot() { const s = {}; for (const n in jointInfo) s[n] = jointInfo[n].value; return s; }
+function stop() { clip = null; document.querySelectorAll("button[data-clip]").forEach((b) => b.classList.remove("on")); }
+function play(name) {
+  stop();
+  if (name === "reset") { clipName = "reset"; clip = [Object.fromEntries(Object.keys(jointInfo).map((n) => [n, 0]))]; }
+  else { clipName = name; clip = motion[name]; document.querySelector(`button[data-clip="${name}"]`).classList.add("on"); }
+  from = snapshot(); t0 = performance.now();
+}
+document.querySelectorAll("button[data-clip]").forEach((b) => b.addEventListener("click", () => play(b.dataset.clip)));
+const smooth = (x) => x * x * (3 - 2 * x);
+function applyFrame(f, w) {
+  for (const n in jointInfo) {
+    const target = n in f ? f[n] : (clipName === "trot" || clipName === "reset" ? 0 : (LEG.includes(n) || n === "tail_wag" ? 0 : from[n]));
+    setJoint(n, from[n] + (target - from[n]) * w);
+  }
+}
+function step(now) {
+  if (!clip) return;
+  const t = (now - t0) / 1000;
+  if (t < BLEND) { applyFrame(clip[0], smooth(t / BLEND)); caption(clipName === "reset" ? "idle" : clipName === "mission" ? "idle" : clipName); refresh(); return; }
+  const loop = clipName === "trot", pingpong = clipName === "branches";
+  let k = (t - BLEND) * FPS;
+  const n = clip.length;
+  if (loop) k = k % n;
+  else if (pingpong) { const span = (n - 1) + 30; const m = k % (2 * span); k = Math.min(m < span ? m : 2 * span - m, n - 1); }
+  else if (k >= n - 1) { k = n - 1; }
+  const i = Math.floor(k), j = loop ? (i + 1) % n : Math.min(i + 1, n - 1), w = k - i;
+  const a = clip[i], b = clip[j];
+  for (const name in jointInfo) {
+    const va = name in a ? a[name] : 0, vb = name in b ? b[name] : 0;
+    setJoint(name, va + (vb - va) * w);
+  }
+  if (clipName === "mission") caption(i < 2 ? "idle" : i < 30 ? "fk" : i < 75 ? "ik" : "five");
+  else if (clipName === "reset") caption("idle");
+  else caption(clipName);
+  refresh();
+  if (!loop && !pingpong && k >= n - 1) { const keep = clipName; stop(); clipName = keep; }
+}
+
+// ---------- start-up pose from the URL (used for screenshots) ----------
+const poses = { zero: [0, 0, 0], stance: motion.poses.stance, highfive: motion.poses.knee_back, forward: motion.poses.knee_forward };
+const startPose = poses[params.get("pose")];
+if (startPose) { LEG.forEach((n, i) => setJoint(n, startPose[i])); caption(params.get("pose") === "zero" ? "idle" : params.get("pose") === "stance" ? "fk" : "five"); }
+else caption("idle");
+if (params.get("play")) play(params.get("play"));
+
+function resize() {
+  const w = stage.clientWidth, h = stage.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  const framed = !document.body.classList.contains("bare") && w > 760;   // keep the robot clear of the panels
+  if (framed) camera.setViewOffset(w, h, 150, -36, w, h); else camera.clearViewOffset();
+  camera.updateProjectionMatrix();
+}
+window.addEventListener("resize", resize);
+resize();
+refresh();
+renderer.setAnimationLoop((now) => { step(now); controls.update(); renderer.render(scene, camera); });
+window.__sprocket = { play, setJoint, refresh, pawWorld, jointInfo, renderer };
+</script>
+</body>
+</html>

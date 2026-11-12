@@ -1,0 +1,424 @@
+mission_id: "01"
+version: "1.0.0"
+title: Teach a Robot Dog to High-Five with KinematicsSolver
+thumbnail: thumbnail.png
+objective: >
+  Learn to pose an imported CAD assembly with the Simscape Multibody
+  KinematicsSolver. Sprocket is a robot dog sitting powered down on a
+  maintenance stand. By the end you will have imported his URDF assembly,
+  solved a forward kinematics problem to find where a paw goes for given joint
+  angles, solved the inverse problem to find the joint angles that put the paw
+  on a high-five pad, and used initial guesses to pick the answer the real
+  joints can reach. This mission assumes that you can run MATLAB commands,
+  index into tables and arrays, and write a for loop. You do not need any
+  robotics or Simscape Multibody experience.
+supported_matlab_releases: [R2024b, R2025a, R2025b, R2026a, R2026b]
+required_capabilities: [MATLAB, Simulink, Simscape, Simscape Multibody, MATLAB MCP, Simulink Agentic Toolkit]
+write_mode: read_inspect
+capability_mode: guided_tutor
+
+app:
+  summary: Import a robot dog from CAD and solve forward and inverse kinematics to make it give a high-five.
+  audience: MATLAB users who are new to Simscape Multibody and to robot kinematics.
+  difficulty: beginner
+  estimated_minutes: 45
+  products: [MATLAB, Simulink, Simscape, Simscape Multibody]
+  topics: [kinematics, KinematicsSolver, forward kinematics, inverse kinematics, URDF import, initial guesses]
+  status: draft
+  learner_visible: true
+  tile_order: 10
+
+learning_outcomes:
+  - id: lo01
+    description: Import a URDF CAD assembly into a Simscape Multibody model and identify its joints.
+  - id: lo02
+    description: Create a KinematicsSolver object and match its joint variable IDs to the joints of the model.
+  - id: lo03
+    description: Define frame variables that measure the position of a point of interest relative to the world frame.
+  - id: lo04
+    description: Pose and solve a forward kinematics problem by assigning target and output variables.
+  - id: lo05
+    description: Pose and solve an inverse kinematics problem and read its status flag.
+  - id: lo06
+    description: Use initial guesses to choose between multiple solutions, check a solution against joint limits, and solve a smooth path.
+
+setup:
+  script: "setup_sprocket_high_five.m"
+  description: >
+    Finds the Sprocket CAD files that ship in the task_reset folder and writes
+    Sprocket.urdf into the learner workspace with full paths to the part
+    geometry, so the import works from any current folder. Leaves two
+    variables in the MATLAB workspace: urdfFile, the full path of that URDF
+    file, and padPosition, the 1-by-3 point in metres (world frame) that the
+    paw centre must reach. No model is created and no solver exists yet.
+    Construction variables are cleared. Run via run_matlab_file at session
+    start.
+
+runtime_validation:
+  setup:
+    assertions:
+      - type: workspace_var
+        name: padPosition
+        class: double
+      - type: workspace_var
+        name: urdfFile
+        class: string
+      - type: matlab_expression
+        description: The staged URDF file exists
+        code: "isfile(urdfFile)"
+      - type: workspace_absent
+        name: cadFolder
+  resets:
+    - task: t02
+      assertions:
+        - type: model_loaded
+          name: Sprocket
+        - type: block_exists
+          path: Sprocket/fl_knee
+        - type: block_exists
+          path: Sprocket/World
+    - task: t03
+      assertions:
+        - type: model_loaded
+          name: Sprocket
+        - type: workspace_var
+          name: ks
+          class: simscape.multibody.KinematicsSolver
+        - type: matlab_expression
+          description: Three leg joint IDs are stored
+          code: "numel(legIDs) == 3"
+    - task: t04
+      assertions:
+        - type: workspace_var
+          name: ks
+          class: simscape.multibody.KinematicsSolver
+        - type: matlab_expression
+          description: Three Paw frame variables exist
+          code: "height(frameVariables(ks)) == 3"
+    - task: t05
+      assertions:
+        - type: matlab_expression
+          description: Forward kinematics is posed with three targets and three outputs
+          code: "height(targetVariables(ks)) == 3 && height(outputVariables(ks)) == 3"
+        - type: matlab_expression
+          description: The stance paw position matches the reference
+          code: "norm(reshape(pawStance, 1, []) - [0.22 0.16 0.1829]) < 1e-3"
+    - task: t06
+      assertions:
+        - type: matlab_expression
+          description: Inverse kinematics has been solved once
+          code: "numel(qFirst) == 3 && all(isfinite(qFirst))"
+    - task: t07
+      assertions:
+        - type: matlab_expression
+          description: Initial guess variables are assigned
+          code: "height(initialGuessVariables(ks)) >= 2"
+        - type: matlab_expression
+          description: The high-five pose is on the knee-back branch
+          code: "abs(qHighFive(3) + 103.08) < 0.1"
+
+discovery:
+  model_name:
+    tool: evaluate_matlab_code
+    code: "bdroot"
+    note: >
+      The learner imports the model and may give it any name. The default is
+      Sprocket. Use bdroot or find_system('type','block_diagram') to discover
+      it, or read the ModelName property of the learner's KinematicsSolver
+      object once it exists. Use the discovered name in every block path.
+
+# Notes for the tutor (Ada):
+# - Every check below can be answered with evaluate_matlab_code. Find the
+#   learner's solver by class (simscape.multibody.KinematicsSolver), not by
+#   variable name, and inspect it with jointPositionVariables,
+#   frameVariables, targetVariables, outputVariables and
+#   initialGuessVariables. These calls only read the solver.
+# - Reference answers come from an independent calculation on the same URDF.
+#   Lengths are in metres, angles in degrees. Treat them as sanity anchors
+#   and judge the learner's formulation first.
+# - The solver ignores joint limits. That is the point of Task 6, so do not
+#   reveal it before then.
+# - Calling solve yourself changes which pose viewSolution shows. If you call
+#   it to verify, say so, or re-run the learner's last solve afterwards.
+
+tasks:
+  - id: "t01"
+    title: Bring Sprocket into Simscape Multibody
+    involves: [command, output_interpretation]
+    outcome_refs: [lo01]
+    instruction: >
+      Sprocket is a robot dog, powered down on a maintenance stand with his
+      legs hanging straight. His CAD assembly was exported as a URDF file
+      named Sprocket.urdf, and its full path is waiting in the workspace
+      variable urdfFile. Before MATLAB can reason about his joints, the
+      assembly has to become a Simscape Multibody model. Import the URDF,
+      then look through the block diagram and tell me the names of the three
+      joints that move the front-left leg.
+    completion:
+      strategy:
+        - tool: evaluate_matlab_code
+          check: >
+            a block diagram imported from Sprocket.urdf is loaded: list models
+            with find_system("type","block_diagram") and confirm one of them
+            has top-level blocks named World, fl_hip_abduct, fl_hip_pitch,
+            fl_knee and fl_foot (for example with getSimulinkBlockHandle);
+            accept any model name
+        - tool: model_overview
+          check: >
+            the imported model's top level shows link subsystems connected by
+            joint blocks; if the model tools cannot describe physical-network
+            blocks, rely on the evaluate_matlab_code evidence instead of
+            failing the task
+        - kind: learner_confirmation
+          check: >
+            The learner has named the three joints of the front-left leg:
+            fl_hip_abduct, fl_hip_pitch and fl_knee. Accept an answer in their
+            own words that identifies all three.
+      description: >
+        Sprocket.urdf has been imported as a loaded Simscape Multibody model
+        and the learner has identified the three front-left leg joints.
+    hints:
+      - A URDF file lists links, which are the rigid parts, and joints, which say how the parts connect. Simscape Multibody can build a model straight from one.
+      - The import function is smimport. Give it the file name with its .urdf extension, otherwise it looks for a CAD XML file instead.
+      - Run `smimport(urdfFile)`. In the new model every joint block is named after its URDF joint, and the front-left leg uses the fl_ prefix. Update the model with Ctrl+D to see Sprocket in Mechanics Explorer.
+
+  - id: "t02"
+    title: Create the solver and find the leg joints
+    involves: [command, output_interpretation]
+    outcome_refs: [lo02]
+    instruction: >
+      Create a KinematicsSolver object for your model. The solver gives every
+      joint its own variable ID, and the IDs are not the joint names, so you
+      have to look them up. List the joint position variables and work out
+      which IDs belong to fl_hip_abduct, fl_hip_pitch and fl_knee. Store
+      those three IDs, in that order, in a variable named legIDs, and tell me
+      which unit the solver uses for them.
+    completion:
+      strategy:
+        - tool: evaluate_matlab_code
+          check: >
+            the base workspace holds a simscape.multibody.KinematicsSolver
+            object whose ModelName is a currently loaded model; find it by
+            class with whos and do not require a particular variable name
+        - tool: evaluate_matlab_code
+          check: >
+            legIDs exists and holds exactly three IDs; look each one up in the
+            table returned by jointPositionVariables for the learner's solver
+            and confirm the BlockPath values end with fl_hip_abduct,
+            fl_hip_pitch and fl_knee in that order; never assume the IDs are
+            j1, j2, j3
+        - kind: learner_confirmation
+          check: >
+            The learner states that joint position variables are in degrees
+            by default.
+      description: >
+        A KinematicsSolver object exists for the imported model and legIDs
+        holds the variable IDs of the three front-left leg joints in order.
+    hints:
+      - The solver works on a snapshot of a loaded model. Its class lives in the simscape.multibody package.
+      - Once the object exists, jointPositionVariables returns a table. The BlockPath column says which joint each ID belongs to and the Unit column answers the unit question.
+      - >
+        Run `ks = simscape.multibody.KinematicsSolver("Sprocket");` then
+        `T = jointPositionVariables(ks)`. Read off the three IDs whose
+        BlockPath ends in fl_hip_abduct, fl_hip_pitch and fl_knee and store
+        them, for example `legIDs = ["j1.Rz.q";"j2.Rz.q";"j3.Rz.q"]` if those
+        are the rows you see.
+
+  - id: "t03"
+    title: Tell the solver where the paw is
+    involves: [command, configuration]
+    outcome_refs: [lo03]
+    instruction: >
+      Joint variables come for free, but the solver does not yet know which
+      point on Sprocket you care about. Add frame variables that measure the
+      translation of the front-left paw relative to the world frame. The paw
+      is welded to the lower leg by the joint named fl_foot, so the frames of
+      that joint sit at the centre of the paw. Use the group name Paw.
+    completion:
+      strategy:
+        - tool: evaluate_matlab_code
+          check: >
+            frameVariables for the learner's solver lists three translation
+            variables (x, y, z, in metres) whose Base is the W port of the
+            World block and whose Follower is a frame at the paw centre: the F
+            or B port of the fl_foot joint, or an equivalent frame port on the
+            fl_paw subsystem; accept any valid group name; do not accept a
+            follower on another leg or on the knee joint
+      description: >
+        The solver has a group of three translation frame variables that
+        locate the front-left paw relative to the world frame.
+    hints:
+      - A frame variable always relates two frames, a base and a follower. Each one is written as the full path of a frame port, starting with the model name.
+      - The world frame block is named World and its port is W. Every joint block has two ports, B and F. Ask for the type "translation".
+      - >
+        Run `addFrameVariables(ks,"Paw","translation","Sprocket/World/W","Sprocket/fl_foot/F");`
+        then `frameVariables(ks)` to see the three new IDs,
+        Paw.Translation.x, Paw.Translation.y and Paw.Translation.z.
+
+  - id: "t04"
+    title: Forward kinematics into the ready stance
+    involves: [command, output_interpretation]
+    outcome_refs: [lo04]
+    instruction: >
+      Time to wake him up. In the ready stance the front-left leg has
+      fl_hip_abduct at 0, fl_hip_pitch at 40 and fl_knee at -80 degrees.
+      Before you solve anything, predict: will the paw end up higher or lower
+      than it hangs now, and will it move forward or back? Then pose a
+      forward kinematics problem in which the three leg joints are the
+      targets and the paw translation is the output. Solve it, store the paw
+      position in a variable named pawStance, and open the solution viewer to
+      check your prediction.
+    completion:
+      strategy:
+        - tool: evaluate_matlab_code
+          check: >
+            targetVariables for the learner's solver lists exactly the three
+            front-left leg joint position variables, and outputVariables
+            lists the three Paw translation variables
+        - tool: evaluate_matlab_code
+          check: >
+            pawStance is a three-element numeric vector within 1 mm of
+            [0.2200 0.1600 0.1829] metres; to judge the formulation rather
+            than the stored numbers you may call solve on the learner's
+            solver with the targets 0, 40 and -80 in the order shown by
+            targetVariables and expect a status flag of 1
+        - kind: learner_confirmation
+          check: >
+            The learner compares the result with their prediction: the paw
+            rises by about 0.10 m and stays directly below the hip, so x and y
+            do not change.
+      description: >
+        A forward kinematics problem is posed with the leg joints as targets
+        and the paw translation as outputs, and pawStance holds the solved
+        paw position for the ready stance.
+    hints:
+      - Every variable needs a role before the solver can run. What you know goes in as a target and what you want comes out as an output.
+      - Use addTargetVariables with legIDs and addOutputVariables with the three Paw IDs, then call solve with the target values in the same order as the target table. The function viewSolution opens the viewer.
+      - >
+        Run `pawIDs = "Paw.Translation." + ["x";"y";"z"];` then
+        `addTargetVariables(ks,legIDs); addOutputVariables(ks,pawIDs);` then
+        `[pawStance,status] = solve(ks,[0 40 -80])` and `viewSolution(ks)`.
+        A status of 1 means every target was met.
+
+  - id: "t05"
+    title: Inverse kinematics to reach the pad
+    involves: [command, output_interpretation]
+    outcome_refs: [lo05]
+    instruction: >
+      Now flip the question. A trainer's high-five pad is fixed to the stand,
+      and the point the paw has to reach is stored in padPosition, in metres
+      in the world frame. This time you know where the paw should be and you
+      want the joint angles that put it there. Pose the problem again so that
+      the paw translation is the target and the three leg joints are the
+      outputs, solve it for padPosition, and read the status flag. Store the
+      joint angles in a variable named qFirst.
+    completion:
+      strategy:
+        - tool: evaluate_matlab_code
+          check: >
+            targetVariables for the learner's solver lists exactly the three
+            Paw translation variables and outputVariables lists the three
+            front-left leg joint position variables, so the roles from the
+            forward problem have been cleared and swapped
+        - tool: evaluate_matlab_code
+          check: >
+            qFirst is a three-element numeric vector; two answers are both
+            correct here, close to [17.82 -14.45 -103.08] or
+            [17.82 -117.53 103.08] degrees (allow 0.1 degree and full-turn
+            wraps); if the learner's solve started from the straight-leg pose
+            and returned a negative status flag, do not fail the task as long
+            as the roles are right, because Task 6 fixes convergence with
+            initial guesses
+      description: >
+        An inverse kinematics problem is posed with the paw translation as
+        targets and the leg joints as outputs, and qFirst holds the joint
+        angles the solver returned for the pad position.
+    hints:
+      - A variable can hold only one role at a time, so the roles you assigned for the forward problem are now in the way.
+      - Clear the old roles with clearTargetVariables and clearOutputVariables, then assign them the other way round. The target values are now a position in metres.
+      - >
+        Run `clearTargetVariables(ks); clearOutputVariables(ks);` then
+        `addTargetVariables(ks,pawIDs); addOutputVariables(ks,legIDs);` then
+        `[qFirst,status] = solve(ks,padPosition)`.
+
+  - id: "t06"
+    title: Pick the pose the real joints can reach
+    involves: [command, output_interpretation]
+    outcome_refs: [lo05, lo06]
+    instruction: >
+      Open the solution viewer and look at the knee. The paw can reach the
+      pad in two ways: with the knee tucked back behind the leg, as in the
+      ready stance, or flipped forward above the body. The solver ignores
+      joint limits, and Sprocket's knee can only move between -160 and +5
+      degrees, so only one of those answers is real. Starting from straight
+      legs, the solver has no reason to prefer either one. Take control: give
+      the solver an initial guess for the leg joints that steers it to the
+      answer inside the knee limit, and store that answer in qHighFive. Then
+      tell me why one paw position can have more than one set of joint
+      angles.
+    completion:
+      strategy:
+        - tool: evaluate_matlab_code
+          check: >
+            initialGuessVariables for the learner's solver includes at least
+            the front-left hip pitch and knee joint position variables
+        - tool: evaluate_matlab_code
+          check: >
+            qHighFive is a three-element numeric vector within 0.1 degree of
+            [17.82 -14.45 -103.08], in the order of the output table, so the
+            knee angle is negative and inside the range -160 to +5 degrees
+        - kind: learner_confirmation
+          check: >
+            The learner explains in their own words that a two-segment leg
+            can reach the same point with the knee bent either way, so the
+            paw position alone does not fix the joint angles.
+      description: >
+        The leg joints are assigned as initial guess variables and qHighFive
+        holds the knee-back solution that respects the knee joint limit.
+    hints:
+      - The solver searches outward from a starting pose, so a start near the answer you want leads to that answer. The ready stance already has the knee bent the right way.
+      - Assign the leg joints as initial guess variables with addInitialGuessVariables, then pass the guess values as the third input to solve.
+      - >
+        Run `addInitialGuessVariables(ks,legIDs);` then
+        `[qHighFive,status] = solve(ks,padPosition,[0 40 -80])` and
+        `viewSolution(ks)`. The knee angle should come out near -103 degrees.
+
+  - id: "t07"
+    title: Plan the move from stance to high-five
+    involves: [command, file_edit, output_interpretation]
+    outcome_refs: [lo06]
+    instruction: >
+      A real robot cannot jump between poses. Plan the move: take at least 15
+      evenly spaced points on the straight line from pawStance to
+      padPosition, solve the inverse kinematics at each point, and use each
+      answer as the initial guess for the next point so the knee never flips.
+      Collect the joint angles in a matrix named qPath with one row per
+      point, then draw the three joint angles along the path in a figure with
+      a legend. Finish by viewing the last pose. Sprocket should be giving
+      you a high-five.
+    completion:
+      strategy:
+        - tool: evaluate_matlab_code
+          check: >
+            qPath is numeric with three columns and at least 15 rows; its
+            first row is within 0.5 degree of [0 40 -80] and its last row
+            within 0.5 degree of [17.82 -14.45 -103.08]; the knee column is
+            negative and inside -160 to +5 on every row; no joint jumps by
+            more than about 20 degrees between consecutive rows
+        - tool: evaluate_matlab_code
+          check: >
+            inspect all open figures, not only gcf, and find one with a legend
+            and at least three plotted lines whose values match the three
+            columns of the current qPath
+      description: >
+        qPath holds a smooth joint-angle path from the ready stance to the
+        high-five pose, and a figure shows the three joint angles along it.
+    hints:
+      - Build the list of paw positions first, then loop over it. The solver keeps its target, output and guess roles between calls, so only the numbers change.
+      - Use linspace to blend from pawStance to padPosition. Inside the loop, call solve with the current point and the previous answer as the guess, then store the answer as a row of qPath.
+      - >
+        Run `n = 25; s = linspace(0,1,n)'; pawPath = (1-s).*pawStance(:)' + s.*padPosition(:)';`
+        then `qPath = zeros(n,3); guess = [0 40 -80];` then
+        `for k = 1:n, qk = solve(ks,pawPath(k,:),guess); qPath(k,:) = qk(:)'; guess = qk(:)'; end`
+        then `plot(s,qPath); legend("abduct","pitch","knee")` and
+        `viewSolution(ks)`.

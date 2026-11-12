@@ -1,0 +1,17 @@
+# macOS and editors
+.DS_Store
+._*
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# MATLAB and Simulink autosave and cache files
+*.asv
+*.m~
+*.autosave
+*.slx.r*
+*.mdl.r*
+*.slxc
+slprj/

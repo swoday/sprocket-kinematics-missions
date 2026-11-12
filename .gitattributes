@@ -1,0 +1,6 @@
+# Same line endings on every platform: the Interactive Missions app reads
+# mission.yaml and manifest.yaml with line-based patterns.
+* text=auto eol=lf
+
+*.stl binary
+*.png binary
