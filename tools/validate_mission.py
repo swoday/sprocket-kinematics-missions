@@ -141,13 +141,40 @@ def main():
         if not (isinstance(hints, list) and 1 <= len(hints) <= 3
                 and all(isinstance(h, str) and h.strip() for h in hints)):
             bad_hints.append(tid)
-        for txt in (t["title"], t["instruction"]):
-            if FORBIDDEN_INITIAL_GUIDANCE.search(txt):
-                bad_guidance.append(tid)
+        if FORBIDDEN_INITIAL_GUIDANCE.search(t["title"]):
+            bad_guidance.append(tid)
     check("every task has title, instruction, completion, hints", not bad_fields, str(bad_fields))
     check("completion items use allowed MCP tools or learner_confirmation", not bad_tools, str(bad_tools))
     check("hints are ordered lists of 1 to 3 strings", not bad_hints, str(bad_hints))
-    check("titles and instructions contain no runnable commands", not bad_guidance, str(bad_guidance))
+    check("titles contain no runnable commands", not bad_guidance, str(bad_guidance))
+
+    # Guided style. This mission deliberately departs from the framework rule
+    # that instructions carry no commands: the author wants a learner who
+    # starts from zero to get the story, numbered steps with the exact
+    # commands, and one fair question in every task.
+    unguided = [t["id"] for t in tasks
+                if not (re.search(r"Your steps:", t["instruction"])
+                        and re.search(r"(?m)^1\. ", t["instruction"])
+                        and re.search(r"(?m)^2\. ", t["instruction"])
+                        and "`" in t["instruction"])]
+    check("every instruction has a story and numbered steps with commands", not unguided, str(unguided))
+    no_question = [t["id"] for t in tasks
+                   if not re.search(r"Then answer this:[^?]*\?", t["instruction"], re.S)
+                   or not any(i.get("kind") == "learner_confirmation" for i in t["completion"]["strategy"])]
+    check("every task ends with one question that the tutor checks", not no_question, str(no_question))
+    solving = [t for t in tasks if "solve(ks" in t["instruction"]]
+    no_view = [t["id"] for t in solving if "viewSolution(ks)" not in t["instruction"]]
+    check("every task that solves also shows the pose with viewSolution",
+          len(solving) >= 4 and not no_view, str(no_view))
+    learner_text = [m["objective"]] + [t["instruction"] for t in tasks] + [h for t in tasks for h in t["hints"]]
+    style = sorted({w for txt in learner_text
+                    for w in re.findall(r"—|–|\s-\s|\b\w+n't\b|\b(?:it|that|you|we|they|he|she|let|here|there|what)'(?:s|ll|re|ve|d)\b",
+                                        txt, re.I)})
+    check("learner text has no dashes and no contractions (house style)", not style, str(style))
+    long_sentences = [s.strip()[:60] for txt in learner_text
+                      for s in re.split(r"(?<=[.?!])\s+", re.sub(r"`[^`]*`", "CODE", txt))
+                      if len(s.split()) > 35]
+    check("no learner sentence is longer than 35 words", not long_sentences, str(long_sentences))
 
     setup = m.get("setup")
     setup_script = MISSION_DIR / setup["script"] if setup else None

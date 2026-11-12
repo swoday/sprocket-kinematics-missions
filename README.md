@@ -6,7 +6,7 @@ A marketplace for the [Interactive Missions](https://github.com/matlab/agentic-l
 
 **Teach a Robot Dog to High-Five with KinematicsSolver**
 
-The learner imports Sprocket, a robot dog built as a real CAD assembly, into Simscape Multibody and poses him with `simscape.multibody.KinematicsSolver`. Seven tasks, about 45 minutes, for MATLAB users who are new to Simscape Multibody.
+The learner imports Sprocket, a robot dog built as a real CAD assembly, into Simscape Multibody and poses him with `simscape.multibody.KinematicsSolver`. Seven tasks, about 60 minutes. You need no robotics, CAD or Simscape Multibody background: every task tells the story, explains each new word, gives numbered steps with the exact commands, and ends with one question. Say "show me" to the tutor whenever you want more help.
 
 **Status: draft.** The URDF imports, the model opens in MATLAB, and the marketplace registers in the app. The ten-row check script and a full play-through with the tutor are still to be confirmed.
 
