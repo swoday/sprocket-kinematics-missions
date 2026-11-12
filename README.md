@@ -6,7 +6,7 @@ A marketplace for the [Interactive Missions](https://github.com/matlab/agentic-l
 
 **Teach a Robot Dog to High-Five with KinematicsSolver**
 
-The learner imports Sprocket, a robot dog built as a real CAD assembly, into Simscape Multibody and poses him with `simscape.multibody.KinematicsSolver`. Seven tasks, about 60 minutes. You need no robotics, CAD or Simscape Multibody background: every task tells the story, explains each new word, gives numbered steps with the exact commands, and ends with one question. Each step says whether to work in MATLAB or in Simulink, what the command does and why you need it. Say "show me" to the tutor whenever you want more help.
+The learner imports Sprocket, a robot dog built as a real CAD assembly, into Simscape Multibody and poses him with `simscape.multibody.KinematicsSolver`. Seven tasks, about 60 minutes. You need no robotics, CAD or Simscape Multibody background: every task tells the story, explains each new word, gives numbered steps with the exact commands, and ends with one question. Each step says whether to work in MATLAB or in Simulink, what the command does and why you need it. Ask the tutor for a hint whenever you want to be shown what to do: every hint is one complete step.
 
 **Status: draft.** The URDF imports, the model opens in MATLAB, and the marketplace registers in the app. The ten-row check script and a full play-through with the tutor are still to be confirmed.
 
@@ -36,6 +36,22 @@ end
 ```
 
 It only creates the file when it is missing, so existing marketplaces are left alone.
+
+### How the tutor decides what to show
+
+The tutor follows its own skill, which the toolbox copies into your mission workspace. With the standard skill, the tutor presents the goal of each task and gives one hint each time you ask. In this mission every hint is a complete step: where to work, the exact command, what it does and why. Ask for a hint whenever you want to be shown what to do.
+
+If you want the tutor to show the numbered steps of every task up front, add the guided walkthrough section in `docs/guided-mode-addendum.md` to the tutor skill of your installed toolbox. It only takes effect for missions that declare `teaching_mode: guided_walkthrough`. Run this once in MATLAB, then start the mission again:
+
+```matlab
+skill = fullfile(interactiveMissions.internal.toolboxRoot(),"src","skills","mission-tutoring","SKILL.md");
+backup = fullfile(prefdir,"mission-tutoring-SKILL-original.md");
+if ~isfile(backup), copyfile(skill,backup); end
+extra = webread("https://raw.githubusercontent.com/swoday/sprocket-kinematics-missions/main/docs/guided-mode-addendum.md", weboptions(ContentType="text"));
+if ~contains(fileread(skill),"Guided Walkthrough Mode"), writelines([string(fileread(skill)); string(extra)], skill); end
+```
+
+To undo it, run `copyfile(backup,skill)`. This changes your local copy of the toolbox only, and it has not been tested with every agent client.
 
 ## What the mission teaches
 

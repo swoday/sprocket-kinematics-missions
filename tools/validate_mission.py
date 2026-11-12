@@ -170,6 +170,18 @@ def main():
         if len(steps) < 3:
             bare_steps.append(f"{t['id']}: fewer than 3 steps")
     check("every step says where to work, what it does and why", not bare_steps, str(bare_steps))
+    # The stock tutor shows only the goal of a task and gives the authored hints
+    # one at a time on request, so every hint has to be a complete step by itself.
+    weak_hints = []
+    for t in tasks:
+        for n, (word, h) in enumerate(zip(("First", "Second", "Third"), t["hints"]), 1):
+            if not re.match(word + r" step, in (?:MATLAB|Simulink)\. ", h) \
+                    or not re.search(r"What it does:|What you see:", h) \
+                    or re.search(r"\bsteps? \d", h):
+                weak_hints.append(f"{t['id']} hint {n}")
+        if len(t["hints"]) != 3 or "`" not in " ".join(t["hints"][:2]):
+            weak_hints.append(f"{t['id']}: needs 3 hints with a command in the first two")
+    check("every hint is a complete step: where, action, what it does", not weak_hints, str(weak_hints))
     uses_simulink = [t["id"] for t in tasks if "In Simulink:" in t["instruction"]]
     check("the mission has steps in both MATLAB and Simulink", len(uses_simulink) >= 2, str(uses_simulink))
     no_question = [t["id"] for t in tasks
