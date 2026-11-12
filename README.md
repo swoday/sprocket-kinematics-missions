@@ -10,7 +10,7 @@ The learner imports Sprocket, a robot dog built as a real CAD assembly, into Sim
 
 You work in a live script. When the mission starts, `sprocket_high_five.m` opens in the Live Editor. It has one section for each task, with the background, the function and an empty code area. The tutor gives you the task in the chat. You type your code in the section, run it, and tell the tutor. You can ask the tutor for a hint at any time: the first hint of every task explains the function again and gives the exact commands. The exact commands of every task are also in the Solutions section at the bottom of the live script, so you can try first and still look.
 
-**Status: draft.** The URDF imports, the model opens in MATLAB, the marketplace registers in the app, and all 14 tasks of version 3.2.0 pass in a play-through with the tutor. The simulation of the last task plays the move. Still to be confirmed: saving the video with `smwritevideo`, the new tasks 13 and 14 with the tutor, and the ten-row check script.
+**Status: draft.** The URDF imports, the model opens in MATLAB, the marketplace registers in the app, and all 14 tasks of version 3.2.0 pass in a play-through with the tutor. The simulation of the last task plays the move, and `smwritevideo` saves it as a video. Still to be confirmed: the new tasks 13 and 14 in a play-through with the tutor, and the ten-row check script.
 
 ## Run the mission
 
