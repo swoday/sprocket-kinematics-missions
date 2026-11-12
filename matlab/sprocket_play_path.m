@@ -27,6 +27,17 @@ end
 legJoints = ["fl_hip_abduct" "fl_hip_pitch" "fl_knee"];
 holdTime = 0.5;                 % seconds of standing still before and after
 
+% A path whose rows are all the same has nothing to play. This happens when
+% qPath still holds the zeros of Task 12, before the loop of Task 13 fills it.
+if all(abs(qPath - qPath(1, :)) < 1e-9, "all")
+    error("sprocket:playPath:noMove", ...
+        "Every row of qPath is [%s], so there is nothing to play. " + ...
+        "Run the loop of Task 13 again, so that qPath holds the solved joint angles.", ...
+        num2str(qPath(1, :)));
+end
+fprintf("Playing %d poses, from [%s] to [%s] degrees.\n", size(qPath, 1), ...
+    num2str(qPath(1, :), '%.2f  '), num2str(qPath(end, :), '%.2f  '));
+
 % A fresh copy of the model, so that the model of the mission stays as it is.
 if bdIsLoaded("SprocketPlayback")
     close_system("SprocketPlayback", 0);
@@ -40,6 +51,12 @@ n = size(qPath, 1);
 t = [0; holdTime + moveTime * linspace(0, 1, n)'];
 q = [qPath(1, :); qPath];
 stopTime = t(end) + holdTime;
+
+% The data lives in the model workspace under two names: pathTime is the time
+% of each pose in seconds, and pathAngles holds one column for each leg joint.
+modelWorkspace = get_param(mdl, "ModelWorkspace");
+assignin(modelWorkspace, "pathTime", t);
+assignin(modelWorkspace, "pathAngles", q);
 
 % Every joint that can take a motion input gets one: the three leg joints
 % follow the path, and every other joint is held at zero. The torque of each
@@ -80,7 +97,7 @@ for b = blocks(:)'
             Position=[left top left + 40 top + 24]);
     else
         add_block("simulink/Sources/From Workspace", source, ...
-            VariableName=mat2str([t q(:, column)], 8), ...
+            VariableName=sprintf("[pathTime pathAngles(:,%d)]", column), ...
             OutputAfterFinalValue="Holding final value", SampleTime="0", ...
             Position=[left top left + 60 top + 24]);
         driven = driven + 1;
