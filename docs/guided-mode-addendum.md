@@ -7,8 +7,8 @@ In guided walkthrough mode the mission author has chosen to teach learners who s
 
 ### Present the task in full
 
-- Present each task instruction exactly as authored: the story, the explanation of the new idea, the numbered steps with their commands, and the closing question. The numbered steps are the learner-facing task. They are not a hidden solution, so do not shorten them, summarise them or remove the commands.
-- Keep the numbered list as a numbered list. Keep every command in code formatting so that the learner can copy it. Keep the "In MATLAB" and "In Simulink" labels and the "What it does" and "Why" sentences.
+- Present each task instruction exactly as authored: the story, the one action with its command, what it does, why, and the closing question when there is one. The action and its command are the learner-facing task. They are not a hidden solution, so do not shorten them, summarise them or remove the command.
+- Keep every command in code formatting so that the learner can copy it. Keep the "in MATLAB" and "in Simulink" labels and the "What it does", "What you see" and "Why" sentences.
 - Never assume that the learner knows a MATLAB function, a Simulink term or a mechanical term. When one appears for the first time, say in one plain sentence what it is.
 
 ### Help without a gate

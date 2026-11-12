@@ -6,7 +6,7 @@ A marketplace for the [Interactive Missions](https://github.com/matlab/agentic-l
 
 **Teach a Robot Dog to High-Five with KinematicsSolver**
 
-The learner imports Sprocket, a robot dog built as a real CAD assembly, into Simscape Multibody and poses him with `simscape.multibody.KinematicsSolver`. Seven tasks, about 60 minutes. You need no robotics, CAD or Simscape Multibody background: every task tells the story, explains each new word, gives numbered steps with the exact commands, and ends with one question. Each step says whether to work in MATLAB or in Simulink, what the command does and why you need it. A step-by-step guide opens in the MATLAB Editor when the mission starts, and you can ask the tutor for a hint at any time: every hint is one complete step.
+The learner imports Sprocket, a robot dog built as a real CAD assembly, into Simscape Multibody and poses him with `simscape.multibody.KinematicsSolver`. It has 28 small tasks, one action each, and takes about 75 minutes. You need no robotics, CAD or Simscape Multibody background: every task tells the story, explains each new word and asks for one action. Each task says whether to work in MATLAB or in Simulink, what the command does and why you need it. A guide opens in the MATLAB Editor when the mission starts, and you can ask the tutor for a hint at any time: the first hint of every task is the exact command.
 
 **Status: draft.** The URDF imports, the model opens in MATLAB, and the marketplace registers in the app. The ten-row check script and a full play-through with the tutor are still to be confirmed.
 
@@ -39,14 +39,14 @@ It only creates the file when it is missing, so existing marketplaces are left a
 
 ### How the tutor decides what to show
 
-The tutor follows its own skill, which the toolbox copies into your mission workspace. With the standard skill, the tutor presents the goal of each task and gives one hint each time you ask. This mission gives you the steps in two ways that need no change to the tutor:
+The tutor follows its own skill, which the toolbox copies into your mission workspace. With the standard skill, the tutor presents the goal of each task and gives one hint each time you ask. This mission is built for that. Each task is one action, and its title names the function to use. You get the exact command in two ways that need no change to the tutor:
 
-- **The guide.** When the mission starts, `Sprocket_guide.m` opens in the MATLAB Editor. It lists every step of every task: where to work, the exact command, what it does and why. Type each command in the Command Window, or click inside a step and press Ctrl+Enter to run only that step. The copy in your workspace folder is yours, so you can write notes in it.
-- **Hints.** Every hint is a complete step. Ask the tutor for a hint whenever you want to be shown what to do.
+- **The guide.** When the mission starts, `Sprocket_guide.m` opens in the MATLAB Editor. It lists every task: where to work, the exact command, what it does and why. Type each command in the Command Window, or click inside a task and press Ctrl+Enter to run only that task. The copy in your workspace folder is yours, so you can write notes in it.
+- **Hints.** The first hint of every task is the exact command, with what it does and why. Ask the tutor for a hint whenever you want to be shown what to do.
 
-The tutor still checks each task, answers your questions and asks one question per task.
+The tutor still checks each task, answers your questions and asks a question after the tasks where there is something to notice.
 
-There is also an optional change to the tutor itself. If you want the tutor to show the numbered steps of every task up front, add the guided walkthrough section in `docs/guided-mode-addendum.md` to the tutor skill of your installed toolbox. It only takes effect for missions that declare `teaching_mode: guided_walkthrough`. Run this once in MATLAB, then start the mission again:
+There is also an optional change to the tutor itself. If you want the tutor to show the command of every task up front, add the guided walkthrough section in `docs/guided-mode-addendum.md` to the tutor skill of your installed toolbox. It only takes effect for missions that declare `teaching_mode: guided_walkthrough`. Run this once in MATLAB, then start the mission again:
 
 ```matlab
 skill = fullfile(interactiveMissions.internal.toolboxRoot(),"src","skills","mission-tutoring","SKILL.md");
@@ -60,15 +60,15 @@ To undo it, run `copyfile(backup,skill)`. This changes your local copy of the to
 
 ## What the mission teaches
 
-| # | Task | Idea |
+| Tasks | Stage | Idea |
 |---|---|---|
-| 1 | Import the CAD assembly | A URDF file and its part files become a Simscape Multibody model |
-| 2 | Create the solver and find the leg joints | The solver names joint variables itself; they are not the joint names |
-| 3 | Tell the solver where the paw is | Frame variables measure one frame from another |
-| 4 | Forward kinematics into the ready stance | Joint angles in, paw position out |
-| 5 | Inverse kinematics to the pad | Paw position in, joint angles out |
-| 6 | Pick the pose the real joints can reach | The solver ignores joint limits; an initial guess picks the answer |
-| 7 | Plan the move from stance to high-five | Solve along a path, each answer seeding the next |
+| 1 to 3 | Import the CAD assembly and look at it | A URDF file and its part files become a Simscape Multibody model |
+| 4 to 6 | Create the solver and find the leg joints | The solver names joint variables itself; they are not the joint names |
+| 7 to 10 | Tell the solver where the paw is | Frame variables measure one frame from another |
+| 11 to 14 | Forward kinematics into the ready stance | Joint angles in, paw position out |
+| 15 to 19 | Inverse kinematics to the pad | Paw position in, joint angles out |
+| 20 to 22 | Pick the pose the real joints can reach | The solver ignores joint limits; an initial guess picks the answer |
+| 23 to 28 | Plan the move from stance to high-five | Solve along a path, each answer seeding the next |
 
 ## What is in this repository
 
@@ -88,6 +88,7 @@ Spoiler warning for learners: `matlab/` and the hints in `mission.yaml` contain 
 | To do this | Run |
 |---|---|
 | Check the mission end to end in MATLAB | `matlab/verify_sprocket_mission.m` (ten rows, all should pass) |
+| Change a task, the guide or a reset script | Edit the task list in `tools/build_mission.py`, then run `python3 tools/build_mission.py`. It writes `mission.yaml`, `Sprocket_guide.m` and the reset scripts together |
 | Check the mission files without MATLAB | `python3 tools/validate_mission.py` (needs PyYAML) |
 | Change the geometry | `pip install cadquery`, then `python cad/build_sprocket.py` |
 | Refresh the reference numbers and the viewer | `python3 cad/kinematics.py`, then `python3 viewer/build_viewer.py` |

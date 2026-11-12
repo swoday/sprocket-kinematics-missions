@@ -1,8 +1,4 @@
-% Ready for Task 06: inverse kinematics posed and solved once without a guess.
+% Ready for Task 06: the state after Task 05 (List the joint angles with jointPositionVariables).
 run("reset_t05.m");
 
-clearTargetVariables(ks);
-clearOutputVariables(ks);
-addTargetVariables(ks, pawIDs);
-addOutputVariables(ks, legIDs);
-qFirst = solve(ks, padPosition);
+T = jointPositionVariables(ks);

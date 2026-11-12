@@ -120,7 +120,7 @@ def main():
     tasks = m["tasks"]
     ids = [t.get("id") for t in tasks]
     check("task ids are sequential", ids == [f"t{i:02d}" for i in range(1, len(tasks) + 1)], str(ids))
-    check("4 to 7 tasks (short-mission brief)", 4 <= len(tasks) <= 7, f"{len(tasks)} tasks")
+    check("20 to 30 small tasks, one action each", 20 <= len(tasks) <= 30, f"{len(tasks)} tasks")
     bad_fields, bad_tools, bad_hints, bad_guidance = [], [], [], []
     for t in tasks:
         tid = t["id"]
@@ -148,55 +148,63 @@ def main():
     check("hints are ordered lists of 1 to 3 strings", not bad_hints, str(bad_hints))
     check("titles contain no runnable commands", not bad_guidance, str(bad_guidance))
 
-    # Guided style. This mission deliberately departs from the framework rule
-    # that instructions carry no commands: the author wants a learner who
-    # starts from zero to get the story, numbered steps with the exact
-    # commands, and one fair question in every task.
-    unguided = [t["id"] for t in tasks
-                if not (re.search(r"Your steps:", t["instruction"])
-                        and re.search(r"(?m)^1\. ", t["instruction"])
-                        and re.search(r"(?m)^2\. ", t["instruction"])
-                        and "`" in t["instruction"])]
-    check("every instruction has a story and numbered steps with commands", not unguided, str(unguided))
-    # Each step says where to work, what the action does and why.
-    bare_steps = []
+    # One action per task. The stock tutor shows only the title and the goal of a
+    # task and gives hints one at a time on request. So every task asks for a
+    # single thing, the title of a MATLAB task names what to type, and the first
+    # hint is the exact command. This departs on purpose from the framework rule
+    # that instructions carry no commands: the author wants a learner who starts
+    # from zero to be helped at every step.
+    def action_of(t):
+        found = re.findall(r"Your one action, in (MATLAB|Simulink): ", t["instruction"])
+        return found[0] if len(found) == 1 else None
+
+    def commands_of(t):
+        typed = re.search(r"Your one action, in MATLAB: .*?Type (.*?) in the Command Window and press Enter\.",
+                          t["instruction"], re.S)
+        return re.findall(r"`([^`]+)`", typed.group(1)) if typed else []
+
+    bad_action = []
     for t in tasks:
-        steps = re.findall(r"(?ms)^(\d+)\. (.*?)(?=^\d+\. |^Then answer this:|\Z)", t["instruction"])
-        for number, body in steps:
-            if not re.match(r"In (?:MATLAB|Simulink):", body) \
-                    or not re.search(r"What it does:|What you see:|What to check:", body) \
-                    or (int(number) < len(steps) and "Why:" not in body):
-                bare_steps.append(f"{t['id']} step {number}")
-        if len(steps) < 3:
-            bare_steps.append(f"{t['id']}: fewer than 3 steps")
-    check("every step says where to work, what it does and why", not bare_steps, str(bare_steps))
-    # The stock tutor shows only the goal of a task and gives the authored hints
-    # one at a time on request, so every hint has to be a complete step by itself.
+        where, body = action_of(t), t["instruction"]
+        if where is None or "Why: " not in body \
+                or (where == "MATLAB" and ("What it does: " not in body or not commands_of(t))) \
+                or (where == "Simulink" and "What you see: " not in body):
+            bad_action.append(t["id"])
+    check("every task is one action with where, what it does and why", not bad_action, str(bad_action))
+    many = [f"{t['id']}: {len(commands_of(t))}" for t in tasks if len(commands_of(t)) > 2]
+    check("no task asks for more than two command lines", not many, str(many))
+    untitled = [t["id"] for t in tasks if action_of(t) == "MATLAB"
+                and not any(word.lower() in t["title"].lower()
+                            for c in commands_of(t) for word in re.findall(r"[A-Za-z]\w{3,}", c))]
+    check("the title of every MATLAB task names what to type", not untitled, str(untitled))
     weak_hints = []
     for t in tasks:
-        for n, (word, h) in enumerate(zip(("First", "Second", "Third"), t["hints"]), 1):
-            if not re.match(word + r" step, in (?:MATLAB|Simulink)\. ", h) \
-                    or not re.search(r"What it does:|What you see:", h) \
-                    or re.search(r"\bsteps? \d", h):
-                weak_hints.append(f"{t['id']} hint {n}")
-        if len(t["hints"]) != 3 or "`" not in " ".join(t["hints"][:2]):
-            weak_hints.append(f"{t['id']}: needs 3 hints with a command in the first two")
-    check("every hint is a complete step: where, action, what it does", not weak_hints, str(weak_hints))
+        h = t["hints"]
+        if len(h) != 3:
+            weak_hints.append(f"{t['id']}: needs 3 hints")
+        elif action_of(t) == "MATLAB":
+            if not (h[0].startswith("In MATLAB, type `") and all(f"`{c}`" in h[0] for c in commands_of(t))
+                    and "What it does: " in h[0] and "Why: " in h[0]):
+                weak_hints.append(t["id"])
+        elif not (h[0].startswith("In Simulink, ") and "What you see: " in h[0] and "Why: " in h[0]):
+            weak_hints.append(t["id"])
+    check("the first hint of every task is the exact command or action", not weak_hints, str(weak_hints))
     # The guide that setup opens in the MATLAB Editor does not depend on the tutor.
     guide_path = RESET / "Sprocket_guide.m"
     guide = guide_path.read_text(encoding="utf-8") if guide_path.is_file() else ""
     squeeze = lambda s: re.sub(r"\s+", "", s)
-    missing_cmds = sorted({f"{t['id']}: {c}" for t in tasks
-                           for c in re.findall(r"`([^`]+)`", t["instruction"])
-                           if squeeze(c) not in squeeze(guide)})
-    check("the guide has a TASK heading for every task",
-          all(re.search(rf"(?m)^%% TASK {i}\. ", guide) for i in range(1, len(tasks) + 1)))
-    check("every command in the instructions is also in the guide", bool(guide) and not missing_cmds, str(missing_cmds))
-    guide_steps = re.findall(r"(?m)^%% Task (\d+), step (\d+)\. In (MATLAB|Simulink)$", guide)
-    yaml_steps = [(str(i), n, w) for i, t in enumerate(tasks, 1)
-                  for n, w in re.findall(r"(?m)^(\d+)\. In (MATLAB|Simulink):", t["instruction"])]
-    check("the guide and the instructions have the same steps in the same places",
-          guide_steps == yaml_steps, f"guide {len(guide_steps)} steps, instructions {len(yaml_steps)} steps")
+    guide_heads = re.findall(r"(?m)^%% TASK (\d+)\. (.+)$", guide)
+    check("the guide has one TASK section per task, with the same titles",
+          guide_heads == [(str(i), t["title"]) for i, t in enumerate(tasks, 1)], f"{len(guide_heads)} sections")
+    sections = re.split(r"(?m)^%% TASK \d+\. .+$", guide)[1:]
+    out_of_sync = []
+    for t, section in zip(tasks, sections):
+        code = [line.strip() for line in section.splitlines() if line.strip() and not line.lstrip().startswith("%")]
+        if [squeeze(c) for c in code] != [squeeze(c) for c in commands_of(t)] \
+                or f"Your one action, in {action_of(t)}:" not in section:
+            out_of_sync.append(t["id"])
+    check("every guide section has exactly the command of its task",
+          len(sections) == len(tasks) and not out_of_sync, str(out_of_sync))
     guide_comments = "\n".join(l for l in guide.splitlines() if l.lstrip().startswith("%"))
     guide_style = sorted(set(re.findall(
         r"—|–|\s-\s|\b\w+n't\b|\b(?:it|that|you|we|they|he|she|let|here|there|what)'(?:s|ll|re|ve|d)\b",
@@ -206,16 +214,17 @@ def main():
     check("setup copies the guide, opens it and leaves guideFile",
           "Sprocket_guide.m" in setup_text and "edit(guideFile)" in setup_text
           and not re.search(r"(?m)^clear .*\bguideFile\b", setup_text))
-    uses_simulink = [t["id"] for t in tasks if "In Simulink:" in t["instruction"]]
-    check("the mission has steps in both MATLAB and Simulink", len(uses_simulink) >= 2, str(uses_simulink))
-    no_question = [t["id"] for t in tasks
-                   if not re.search(r"Then answer this:[^?]*\?", t["instruction"], re.S)
-                   or not any(i.get("kind") == "learner_confirmation" for i in t["completion"]["strategy"])]
-    check("every task ends with one question that the tutor checks", not no_question, str(no_question))
-    solving = [t for t in tasks if "solve(ks" in t["instruction"]]
-    no_view = [t["id"] for t in solving if "viewSolution(ks)" not in t["instruction"]]
-    check("every task that solves also shows the pose with viewSolution",
-          len(solving) >= 4 and not no_view, str(no_view))
+    in_simulink = [t["id"] for t in tasks if action_of(t) == "Simulink"]
+    check("the mission has actions in both MATLAB and Simulink", len(in_simulink) >= 3, str(in_simulink))
+    mismatch = [t["id"] for t in tasks
+                if bool(re.search(r"Then answer this:[^?]*\?", t["instruction"], re.S))
+                != any(i.get("kind") == "learner_confirmation" for i in t["completion"]["strategy"])
+                or t["instruction"].count("Then answer this:") > 1]
+    check("every question is checked by the tutor, with at most one per task", not mismatch, str(mismatch))
+    solve_at = [i for i, t in enumerate(tasks) if any("solve(ks" in c for c in commands_of(t))]
+    view_at = [i for i, t in enumerate(tasks) if commands_of(t) == ["viewSolution(ks)"]]
+    unseen = [tasks[i]["id"] for i in solve_at if not any(i < v <= i + 2 for v in view_at)]
+    check("every solve is followed by a viewSolution task", len(view_at) >= 4 and not unseen, str(unseen))
     learner_text = [m["objective"]] + [t["instruction"] for t in tasks] + [h for t in tasks for h in t["hints"]]
     style = sorted({w for txt in learner_text
                     for w in re.findall(r"—|–|\s-\s|\b\w+n't\b|\b(?:it|that|you|we|they|he|she|let|here|there|what)'(?:s|ll|re|ve|d)\b",

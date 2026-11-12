@@ -1,6 +1,4 @@
-% Ready for Task 05: forward kinematics posed and solved for the ready stance.
+% Ready for Task 05: the state after Task 04 (Create the solver with KinematicsSolver).
 run("reset_t04.m");
 
-addTargetVariables(ks, legIDs);
-addOutputVariables(ks, pawIDs);
-pawStance = solve(ks, [0 40 -80]);
+ks = simscape.multibody.KinematicsSolver(mdl);

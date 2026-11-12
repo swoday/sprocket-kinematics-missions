@@ -1,9 +1,4 @@
-% Ready for Task 03: solver created, front-left leg joint IDs stored in legIDs.
+% Ready for Task 03: the state after Task 02 (See Sprocket in 3D).
 run("reset_t02.m");
 
-ks = simscape.multibody.KinematicsSolver(mdl);
-jointTable = jointPositionVariables(ks);
-legJoints = mdl + "/" + ["fl_hip_abduct"; "fl_hip_pitch"; "fl_knee"];
-[~, rows] = ismember(legJoints, string(jointTable.BlockPath));
-legIDs = string(jointTable.ID(rows));
-clear jointTable legJoints rows
+% Task 02 changes nothing in MATLAB.

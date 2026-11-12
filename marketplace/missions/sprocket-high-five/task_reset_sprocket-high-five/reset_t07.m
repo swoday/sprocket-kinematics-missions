@@ -1,5 +1,7 @@
-% Ready for Task 07: leg joints assigned as initial guesses, high-five pose solved.
+% Ready for Task 07: the state after Task 06 (Store the leg IDs in legIDs).
 run("reset_t06.m");
 
-addInitialGuessVariables(ks, legIDs);
-qHighFive = solve(ks, padPosition, [0 40 -80]);
+legJoints = mdl + "/" + ["fl_hip_abduct"; "fl_hip_pitch"; "fl_knee"];
+[~, rows] = ismember(legJoints, string(T.BlockPath));
+legIDs = string(T.ID(rows));
+clear legJoints rows
