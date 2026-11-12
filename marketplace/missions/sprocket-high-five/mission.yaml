@@ -1,5 +1,5 @@
 mission_id: "01"
-version: "2.0.0"
+version: "2.1.0"
 title: Teach a Robot Dog to High-Five with KinematicsSolver
 thumbnail: thumbnail.png
 objective: >
@@ -60,7 +60,7 @@ setup:
     geometry, so the import works from any current folder. Leaves two
     variables in the MATLAB workspace: urdfFile, the full path of that URDF
     file, and padPosition, the 1-by-3 point in metres (world frame) that the
-    paw centre must reach. It also copies the guide Sprocket_guide.m into the
+    paw centre must reach. It also copies the guide Sprocket_guide.md into the
     learner workspace, opens it in the MATLAB Editor, and leaves its full path
     in the variable guideFile. No model is created and no solver exists yet.
     Construction variables are cleared. Run via run_matlab_file at session
@@ -160,10 +160,11 @@ discovery:
 #   does and why. Give it as soon as the learner asks, hesitates or reports
 #   an error. If the learner says that they are new, treat that as a standing
 #   request for the first hint of every task.
-# - The setup script opens a guide named Sprocket_guide.m in the learner's
-#   MATLAB Editor. It has one section for each task, under the headings
-#   TASK 1 to TASK 28, with the same command. Point the learner to the
-#   heading of the current task. The guide is the learner's own copy.
+# - The setup script opens a guide named Sprocket_guide.md in the learner's
+#   MATLAB Editor. It is a Markdown file with one section for each task,
+#   under the headings Task 1 to Task 28, with the same command. Point
+#   the learner to the heading of the current task. The guide is the
+#   learner's own copy, in the workspace folder.
 # - The learner may run several tasks from the guide before talking to you.
 #   When you check a task, also look whether the next tasks are already
 #   done, and move the learner forward without asking them to redo anything.
@@ -250,7 +251,7 @@ tasks:
       After a few seconds, a Simulink window named Sprocket opens.
 
       The guide that is open in the MATLAB Editor shows this task under the
-      heading TASK 1.
+      heading Task 1.
     completion:
       strategy:
         - tool: evaluate_matlab_code
@@ -302,7 +303,7 @@ tasks:
       Why: seeing the robot makes every later task easier to picture.
 
       The guide that is open in the MATLAB Editor shows this task under the
-      heading TASK 2.
+      heading Task 2.
 
       Then answer this: What colour are his paws?
     completion:
@@ -354,7 +355,7 @@ tasks:
       mission.
 
       The guide that is open in the MATLAB Editor shows this task under the
-      heading TASK 3.
+      heading Task 3.
 
       Then answer this: Three of those four joints are hinges that move the
       leg, and one is a rigid weld that only holds the paw on. Think about your
@@ -409,7 +410,7 @@ tasks:
       Why: every later command needs ks.
 
       The guide that is open in the MATLAB Editor shows this task under the
-      heading TASK 4.
+      heading Task 4.
     completion:
       strategy:
         - tool: evaluate_matlab_code
@@ -459,7 +460,7 @@ tasks:
       Why: you need to know which IDs belong to the front-left leg.
 
       The guide that is open in the MATLAB Editor shows this task under the
-      heading TASK 5.
+      heading Task 5.
 
       Then answer this: Look at the Unit column of the table. Which unit does
       the solver use for joint angles?
@@ -518,7 +519,7 @@ tasks:
       hip abduction, hip pitch, knee.
 
       The guide that is open in the MATLAB Editor shows this task under the
-      heading TASK 6.
+      heading Task 6.
     completion:
       strategy:
         - tool: evaluate_matlab_code
@@ -575,7 +576,7 @@ tasks:
       need to know where both are.
 
       The guide that is open in the MATLAB Editor shows this task under the
-      heading TASK 7.
+      heading Task 7.
 
       Then answer this: Which two letters mark the ports of the fl_foot block?
     completion:
@@ -631,7 +632,7 @@ tasks:
       Why: the solver can now report where the paw is.
 
       The guide that is open in the MATLAB Editor shows this task under the
-      heading TASK 8.
+      heading Task 8.
     completion:
       strategy:
         - tool: evaluate_matlab_code
@@ -684,7 +685,7 @@ tasks:
       Why: you will use these three IDs in the next task.
 
       The guide that is open in the MATLAB Editor shows this task under the
-      heading TASK 9.
+      heading Task 9.
 
       Then answer this: If Sprocket lifts his paw straight up, which of those
       three numbers changes: x, y or z?
@@ -735,7 +736,7 @@ tasks:
       Why: pawIDs is now your shortcut for the position of the paw.
 
       The guide that is open in the MATLAB Editor shows this task under the
-      heading TASK 10.
+      heading Task 10.
     completion:
       strategy:
         - tool: evaluate_matlab_code
@@ -783,7 +784,7 @@ tasks:
       Why: in a forward problem you know the angles.
 
       The guide that is open in the MATLAB Editor shows this task under the
-      heading TASK 11.
+      heading Task 11.
     completion:
       strategy:
         - tool: evaluate_matlab_code
@@ -824,7 +825,7 @@ tasks:
       Why: the solver now knows what you want it to work out.
 
       The guide that is open in the MATLAB Editor shows this task under the
-      heading TASK 12.
+      heading Task 12.
     completion:
       strategy:
         - tool: evaluate_matlab_code
@@ -873,7 +874,7 @@ tasks:
       Why: this is the answer to the forward problem.
 
       The guide that is open in the MATLAB Editor shows this task under the
-      heading TASK 13.
+      heading Task 13.
 
       Then answer this: Hanging straight, the paw was at a height of z = 0.08
       metres. Compare that with the third number in pawStance. Was your
@@ -930,7 +931,7 @@ tasks:
       Why: you can check the pose with your own eyes.
 
       The guide that is open in the MATLAB Editor shows this task under the
-      heading TASK 14.
+      heading Task 14.
 
       Then answer this: Look at the front-left leg in the viewer. Is the knee
       bent, or is the leg still straight?
@@ -983,7 +984,7 @@ tasks:
       Why: you are about to swap the roles.
 
       The guide that is open in the MATLAB Editor shows this task under the
-      heading TASK 15.
+      heading Task 15.
     completion:
       strategy:
         - tool: evaluate_matlab_code
@@ -1028,7 +1029,7 @@ tasks:
       must work out the angles.
 
       The guide that is open in the MATLAB Editor shows this task under the
-      heading TASK 16.
+      heading Task 16.
     completion:
       strategy:
         - tool: evaluate_matlab_code
@@ -1078,7 +1079,7 @@ tasks:
       Why: these are the angles that the motors in the leg would have to reach.
 
       The guide that is open in the MATLAB Editor shows this task under the
-      heading TASK 17.
+      heading Task 17.
 
       Then answer this: Which status flag did you get? A status of 1 means that
       the paw reached the pad. A negative status means that the search stopped
@@ -1134,7 +1135,7 @@ tasks:
       bends.
 
       The guide that is open in the MATLAB Editor shows this task under the
-      heading TASK 18.
+      heading Task 18.
 
       Then answer this: In the viewer, is the knee tucked back behind the leg,
       or flipped forward above the body?
@@ -1186,7 +1187,7 @@ tasks:
       Why: the solver does not check joint limits, so you have to.
 
       The guide that is open in the MATLAB Editor shows this task under the
-      heading TASK 19.
+      heading Task 19.
 
       Then answer this: Is the knee angle in qFirst between -160 and +5
       degrees?
@@ -1239,7 +1240,7 @@ tasks:
       answer.
 
       The guide that is open in the MATLAB Editor shows this task under the
-      heading TASK 20.
+      heading Task 20.
     completion:
       strategy:
         - tool: evaluate_matlab_code
@@ -1283,7 +1284,7 @@ tasks:
       the knee tucked back.
 
       The guide that is open in the MATLAB Editor shows this task under the
-      heading TASK 21.
+      heading Task 21.
     completion:
       strategy:
         - tool: evaluate_matlab_code
@@ -1326,7 +1327,7 @@ tasks:
       could make.
 
       The guide that is open in the MATLAB Editor shows this task under the
-      heading TASK 22.
+      heading Task 22.
 
       Then answer this: Why can the same paw position have two different sets
       of joint angles? Use the fingertip and elbow example if it helps.
@@ -1377,7 +1378,7 @@ tasks:
       1 at the end.
 
       The guide that is open in the MATLAB Editor shows this task under the
-      heading TASK 23.
+      heading Task 23.
     completion:
       strategy:
         - tool: evaluate_matlab_code
@@ -1420,7 +1421,7 @@ tasks:
       Why: these are the places where the paw has to be, one after the other.
 
       The guide that is open in the MATLAB Editor shows this task under the
-      heading TASK 24.
+      heading Task 24.
     completion:
       strategy:
         - tool: evaluate_matlab_code
@@ -1465,7 +1466,7 @@ tasks:
       Why: the loop in the next task fills qPath row by row.
 
       The guide that is open in the MATLAB Editor shows this task under the
-      heading TASK 25.
+      heading Task 25.
     completion:
       strategy:
         - tool: evaluate_matlab_code
@@ -1512,7 +1513,7 @@ tasks:
       smooth.
 
       The guide that is open in the MATLAB Editor shows this task under the
-      heading TASK 26.
+      heading Task 26.
     completion:
       strategy:
         - tool: evaluate_matlab_code
@@ -1561,7 +1562,7 @@ tasks:
       Why: the figure shows how each joint angle changes along the move.
 
       The guide that is open in the MATLAB Editor shows this task under the
-      heading TASK 27.
+      heading Task 27.
 
       Then answer this: Look at the three lines in your figure. Are they
       smooth, or does any line jump suddenly?
@@ -1610,7 +1611,7 @@ tasks:
       Why: this is the moment that the whole mission was for.
 
       The guide that is open in the MATLAB Editor shows this task under the
-      heading TASK 28.
+      heading Task 28.
 
       Then answer this: What is Sprocket doing in the viewer?
     completion:

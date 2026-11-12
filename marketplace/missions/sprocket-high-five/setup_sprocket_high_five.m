@@ -58,13 +58,13 @@ writelines(urdfText, urdfFile);
 padPosition = [0.47 0.19 0.44];
 
 %% Give the learner the step-by-step guide
-% The guide lists every step of every task: where to work, the command,
-% what it does and why. The learner gets a copy in the workspace folder, so
-% that notes and edits never touch the copied mission files. An existing
-% copy is kept, because it may hold the learner's notes.
-guideFile = fullfile(workFolder, "Sprocket_guide.m");
+% The guide is a Markdown file that lists every task: where to work, the
+% command, what it does and why. The learner gets a copy in the workspace
+% folder, so that notes and edits never touch the copied mission files. An
+% existing copy is kept, because it may hold the learner's notes.
+guideFile = fullfile(workFolder, "Sprocket_guide.md");
 if ~isfile(guideFile)
-    copyfile(fullfile(cadFolder, "Sprocket_guide.m"), guideFile);
+    copyfile(fullfile(cadFolder, "Sprocket_guide.md"), guideFile);
 end
 try
     edit(guideFile);    % opens the guide in the MATLAB Editor
@@ -77,4 +77,4 @@ clear resetName scriptFolder candidates isCad info cadFolder
 clear contentParent contentLeaf workFolder partsFolder urdfText
 
 disp("Sprocket is on the stand. His URDF file is " + urdfFile);
-disp("The step-by-step guide is open in the MATLAB Editor: " + guideFile);
+disp("The guide is open in the MATLAB Editor: " + guideFile);

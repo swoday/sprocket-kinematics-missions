@@ -6,7 +6,7 @@ task, so every title names the function to use and every task asks for a
 single thing. This script writes three files that must always agree:
 
   marketplace/missions/sprocket-high-five/mission.yaml
-  .../task_reset_sprocket-high-five/Sprocket_guide.m      (opened by setup)
+  .../task_reset_sprocket-high-five/Sprocket_guide.md     (opened by setup)
   .../task_reset_sprocket-high-five/reset_tNN.m           (one per task after the first)
 
 Edit the TASKS list below, then run:  python3 tools/build_mission.py
@@ -20,7 +20,7 @@ PROJECT = Path(__file__).resolve().parent.parent
 MISSION = PROJECT / "marketplace" / "missions" / "sprocket-high-five"
 RESET = MISSION / "task_reset_sprocket-high-five"
 
-VERSION = "2.0.0"
+VERSION = "2.1.0"
 
 FRAME_CMD = 'addFrameVariables(ks,"Paw","translation","Sprocket/World/W","Sprocket/fl_foot/F");'
 LOOP_CMD = "for k = 1:n, qk = solve(ks,pawPath(k,:),guess); qPath(k,:) = qk(:)'; guess = qk(:)'; end"
@@ -773,7 +773,7 @@ setup:
     geometry, so the import works from any current folder. Leaves two
     variables in the MATLAB workspace: urdfFile, the full path of that URDF
     file, and padPosition, the 1-by-3 point in metres (world frame) that the
-    paw centre must reach. It also copies the guide Sprocket_guide.m into the
+    paw centre must reach. It also copies the guide Sprocket_guide.md into the
     learner workspace, opens it in the MATLAB Editor, and leaves its full path
     in the variable guideFile. No model is created and no solver exists yet.
     Construction variables are cleared. Run via run_matlab_file at session
@@ -873,10 +873,11 @@ discovery:
 #   does and why. Give it as soon as the learner asks, hesitates or reports
 #   an error. If the learner says that they are new, treat that as a standing
 #   request for the first hint of every task.
-# - The setup script opens a guide named Sprocket_guide.m in the learner's
-#   MATLAB Editor. It has one section for each task, under the headings
-#   TASK 1 to TASK %(count)d, with the same command. Point the learner to the
-#   heading of the current task. The guide is the learner's own copy.
+# - The setup script opens a guide named Sprocket_guide.md in the learner's
+#   MATLAB Editor. It is a Markdown file with one section for each task,
+#   under the headings Task 1 to Task %(count)d, with the same command. Point
+#   the learner to the heading of the current task. The guide is the
+#   learner's own copy, in the workspace folder.
 # - The learner may run several tasks from the guide before talking to you.
 #   When you check a task, also look whether the next tasks are already
 #   done, and move the learner forward without asking them to redo anything.
@@ -938,27 +939,26 @@ discovery:
 tasks:
 '''
 
-GUIDE_HEADER = '''%%%% Sprocket guide: teach a robot dog to high-five
-%% This guide lists every task of the mission. Each task is one action. Ada,
-%% your tutor, checks each task and answers your questions. You do the
-%% actions.
-%%
-%% How to use this guide
-%% * Work through one task at a time, from top to bottom.
-%% * A task that says "In MATLAB" has a command. Type it in the Command
-%%   Window, after the >> prompt, and press Enter. You can also click inside
-%%   the task in this file and press Ctrl+Enter (Cmd+Enter on a Mac) to run
-%%   only that task.
-%% * A task that says "In Simulink" is something that you do with the mouse
-%%   in the window that shows the Sprocket block diagram.
-%% * Every task says what it does and why you need it.
-%% * When you finish a task, tell Ada. Ask her about anything that is not
-%%   clear. No question is too basic.
-%%
-%% Do not press the Run button for the whole file. The next two lines stop
-%% the file if you do.
-disp("Use this guide one task at a time. Read the first lines of the file.")
-return
+GUIDE_NAME = "Sprocket_guide.md"
+
+GUIDE_HEADER = '''# Sprocket guide: teach a robot dog to high-five
+
+This guide lists every task of the mission. Each task is one action. Ada, your
+tutor, checks each task and answers your questions. You do the actions.
+
+## How to use this guide
+
+* Work through one task at a time, from top to bottom.
+* A task that says **in MATLAB** has a command on lines of its own. Type it in
+  the Command Window, after the `>>` prompt, and press Enter. You can also
+  copy it from here and paste it.
+* A task that says **in Simulink** is something that you do with the mouse in
+  the window that shows the Sprocket block diagram.
+* Every task says what it does and why you need it.
+* When you finish a task, tell Ada. Ask her about anything that is not clear.
+  No question is too basic.
+* If you would like Ada to say the command, ask her for a hint. The first hint
+  of every task is the same command, with what it does and why.
 '''
 
 
@@ -1000,7 +1000,7 @@ def instruction_paragraphs(n, t):
         paras.append(f"Your one action, in Simulink: {one_line(t['action'])}")
         paras.append(f"What you see: {one_line(t['see'])}")
     paras.append(f"Why: {one_line(t['why'])}")
-    paras.append(f"The guide that is open in the MATLAB Editor shows this task under the heading TASK {n}.")
+    paras.append(f"The guide that is open in the MATLAB Editor shows this task under the heading Task {n}.")
     if t.get("question"):
         paras.append(f"Then answer this: {one_line(t['question'])}")
     return paras
@@ -1037,35 +1037,30 @@ def task_yaml(n, t):
     return "\n".join(out)
 
 
-def comment(text, width=76):
-    return "\n".join("% " + line.replace("\x00", " ")
-                     for line in textwrap.wrap(protect(text), width=width - 2,
-                                               break_long_words=False, break_on_hyphens=False))
+def md(text, width=78):
+    """One Markdown paragraph, wrapped so that it also reads well as plain text."""
+    text = protect(text).replace(">> prompt", "`>>` prompt")
+    lines = textwrap.wrap(text, width=width, break_long_words=False, break_on_hyphens=False)
+    # A wrapped line must not start with something Markdown reads as a list, a quote or a heading.
+    lines = [re.sub(r"^(\d+)\. ", r"\1\\. ", line) for line in lines]
+    lines = [re.sub(r"^([-+*>#]) ", r"\\\1 ", line) for line in lines]
+    return "\n".join(lines).replace("\x00", " ")
 
 
 def guide_section(n, t):
-    out = [f"%% TASK {n}. {t['title']}"]
-    for i, p in enumerate(paragraphs(t["story"])):
-        if i:
-            out.append("%")
-        out.append(comment(p))
-    out.append("%")
+    out = [f"## Task {n}. {t['title']}"]
+    out += [md(p) for p in paragraphs(t["story"])]
     if t["where"] == "MATLAB":
-        out.append(comment(f"Your one action, in MATLAB: {t['action']}"))
-        out.append(comment(f"What it does: {t['what']}"))
-        out.append(comment(f"Why: {t['why']}"))
-        out.extend(t["commands"])
+        out.append(md(f"**Your one action, in MATLAB:** {t['action']}"))
+        out.append("```matlab\n" + "\n".join(t["commands"]) + "\n```")
+        out.append(md(f"**What it does:** {t['what']}"))
     else:
-        out.append(comment(f"Your one action, in Simulink: {t['action']}"))
-        out.append(comment(f"What you see: {t['see']}"))
-        out.append(comment(f"Why: {t['why']}"))
+        out.append(md(f"**Your one action, in Simulink:** {t['action']}"))
+        out.append(md(f"**What you see:** {t['see']}"))
+    out.append(md(f"**Why:** {t['why']}"))
     if t.get("question"):
-        if t["where"] == "MATLAB":
-            out.append("")
-        else:
-            out.append("%")
-        out.append(comment(f"Then tell Ada: {t['question']}"))
-    return "\n".join(out)
+        out.append(md(f"**Then tell Ada:** {t['question']}"))
+    return "\n\n".join(out)
 
 
 def reset_script(n, tasks):
@@ -1084,8 +1079,9 @@ def main():
     body = "\n\n".join(task_yaml(i, t) for i, t in enumerate(TASKS, 1))
     (MISSION / "mission.yaml").write_text(header + body + "\n", encoding="utf-8")
 
-    guide = GUIDE_HEADER % () + "\n" + "\n\n".join(guide_section(i, t) for i, t in enumerate(TASKS, 1)) + "\n"
-    (RESET / "Sprocket_guide.m").write_text(guide, encoding="utf-8")
+    guide = GUIDE_HEADER + "\n" + "\n\n".join(guide_section(i, t) for i, t in enumerate(TASKS, 1)) + "\n"
+    (RESET / "Sprocket_guide.m").unlink(missing_ok=True)     # the guide was a MATLAB script before version 2.1.0
+    (RESET / GUIDE_NAME).write_text(guide, encoding="utf-8")
 
     for old in RESET.glob("reset_t*.m"):
         old.unlink()
@@ -1094,7 +1090,7 @@ def main():
 
     in_simulink = sum(t["where"] == "Simulink" for t in TASKS)
     print(f"mission.yaml: version {VERSION}, {count} tasks ({count - in_simulink} in MATLAB, {in_simulink} in Simulink)")
-    print(f"Sprocket_guide.m: {count} sections")
+    print(f"{GUIDE_NAME}: {count} sections")
     print(f"reset scripts: reset_t02.m to reset_t{count:02d}.m")
 
 

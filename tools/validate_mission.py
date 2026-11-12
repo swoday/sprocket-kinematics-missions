@@ -190,29 +190,34 @@ def main():
             weak_hints.append(t["id"])
     check("the first hint of every task is the exact command or action", not weak_hints, str(weak_hints))
     # The guide that setup opens in the MATLAB Editor does not depend on the tutor.
-    guide_path = RESET / "Sprocket_guide.m"
+    guide_path = RESET / "Sprocket_guide.md"
     guide = guide_path.read_text(encoding="utf-8") if guide_path.is_file() else ""
     squeeze = lambda s: re.sub(r"\s+", "", s)
-    guide_heads = re.findall(r"(?m)^%% TASK (\d+)\. (.+)$", guide)
-    check("the guide has one TASK section per task, with the same titles",
+    guide_heads = re.findall(r"(?m)^## Task (\d+)\. (.+)$", guide)
+    check("the guide has one Task section per task, with the same titles",
           guide_heads == [(str(i), t["title"]) for i, t in enumerate(tasks, 1)], f"{len(guide_heads)} sections")
-    sections = re.split(r"(?m)^%% TASK \d+\. .+$", guide)[1:]
+    sections = re.split(r"(?m)^## Task \d+\. .+$", guide)[1:]
     out_of_sync = []
     for t, section in zip(tasks, sections):
-        code = [line.strip() for line in section.splitlines() if line.strip() and not line.lstrip().startswith("%")]
+        code = [line.strip() for block in re.findall(r"(?s)```matlab\n(.*?)\n```", section)
+                for line in block.splitlines() if line.strip()]
         if [squeeze(c) for c in code] != [squeeze(c) for c in commands_of(t)] \
                 or f"Your one action, in {action_of(t)}:" not in section:
             out_of_sync.append(t["id"])
     check("every guide section has exactly the command of its task",
           len(sections) == len(tasks) and not out_of_sync, str(out_of_sync))
-    guide_comments = "\n".join(l for l in guide.splitlines() if l.lstrip().startswith("%"))
+    stray_marks = [line[:40] for line in re.sub(r"(?s)```.*?```", "", guide).splitlines()
+                   if re.match(r"(\d+\.|[-+>])\s", line)]
+    check("no wrapped guide line starts like a Markdown list or quote", not stray_marks, str(stray_marks))
+    check("the old MATLAB-script guide is gone", not (RESET / "Sprocket_guide.m").exists())
+    guide_comments = re.sub(r"(?s)```.*?```", "", guide)
     guide_style = sorted(set(re.findall(
         r"—|–|\s-\s|\b\w+n't\b|\b(?:it|that|you|we|they|he|she|let|here|there|what)'(?:s|ll|re|ve|d)\b",
         guide_comments, re.I)))
     check("the guide text has no dashes and no contractions (house style)", not guide_style, str(guide_style))
     setup_text = (MISSION_DIR / m["setup"]["script"]).read_text(encoding="utf-8")
     check("setup copies the guide, opens it and leaves guideFile",
-          "Sprocket_guide.m" in setup_text and "edit(guideFile)" in setup_text
+          setup_text.count('"Sprocket_guide.md"') == 2 and "edit(guideFile)" in setup_text
           and not re.search(r"(?m)^clear .*\bguideFile\b", setup_text))
     in_simulink = [t["id"] for t in tasks if action_of(t) == "Simulink"]
     check("the mission has actions in both MATLAB and Simulink", len(in_simulink) >= 3, str(in_simulink))
