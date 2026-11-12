@@ -159,7 +159,7 @@ def main():
         return found[0] if len(found) == 1 else None
 
     def commands_of(t):
-        typed = re.search(r"Your task, in MATLAB: .*?Type (.*?) in the Command Window and press Enter",
+        typed = re.search(r"Your task, in MATLAB: .*?Type (.*?) in the code area of this task in your live script",
                           t["instruction"], re.S)
         return re.findall(r"`([^`]+)`", typed.group(1)) if typed else []
 
@@ -198,41 +198,77 @@ def main():
             weak_hints.append(t["id"])
     check("the first hint of every task gives the function, the reason and the exact command",
           not weak_hints, str(weak_hints))
-    # The guide that setup opens in the MATLAB Editor does not depend on the tutor.
-    guide_path = RESET / "Sprocket_guide.md"
-    guide = guide_path.read_text(encoding="utf-8") if guide_path.is_file() else ""
+    # The live script that setup copies to the learner and opens. It is a plain
+    # text live script (R2025a and later) with the instructions and an empty
+    # code area for every task. It does not depend on the tutor. The format
+    # rules come from "Live Code File Formats" in the R2026b documentation.
+    sheet_path = RESET / "sprocket_worksheet.m"
+    sheet = sheet_path.read_text(encoding="utf-8") if sheet_path.is_file() else ""
     squeeze = lambda s: re.sub(r"\s+", "", s)
-    guide_heads = re.findall(r"(?m)^## Task (\d+)\. (.+)$", guide)
-    check("the guide has one Task section per task, with the same titles",
-          guide_heads == [(str(i), t["title"]) for i, t in enumerate(tasks, 1)], f"{len(guide_heads)} sections")
-    sections = re.split(r"(?m)^## Task \d+\. .+$", guide)[1:]
+    sheet_lines = sheet.split("\n")
+    appendix_at = next((i for i, line in enumerate(sheet_lines) if line.startswith("%[appendix]")), len(sheet_lines))
+    body_lines, appendix_lines = sheet_lines[:appendix_at], sheet_lines[appendix_at:]
+    is_markup = lambda line: line == "%%" or line.startswith("%[text")
+    blank_between = [i + 1 for i in range(1, len(body_lines) - 1)
+                     if body_lines[i] == "" and is_markup(body_lines[i - 1]) and is_markup(body_lines[i + 1])]
+    check("live script: no blank line sits between two markup lines", not blank_between, str(blank_between))
+    check("live script: one blank line, then the appendix with the view metadata, ends the file",
+          len(body_lines) >= 2 and body_lines[-1] == "" and body_lines[-2] != ""
+          and appendix_lines[:5] == ['%[appendix]{"version":"1.0"}', "%---", "%[metadata:view]",
+                                     '%   data: {"layout":"inline"}', "%---"])
+    check("the mission needs a release with plain text live scripts (R2025a or later)",
+          all(str(r) >= "R2025a" for r in m["supported_matlab_releases"]), str(m["supported_matlab_releases"]))
+    text_lines = [line[len("%[text] "):] for line in body_lines if line.startswith("%[text] ")]
+    in_fence, prose = False, []
+    for line in text_lines:
+        if line.startswith("```"):
+            in_fence = not in_fence
+        elif not in_fence:
+            prose.append(line)
+    bare = sorted({w for line in prose for w in re.findall(r"\b\w*_\w*", re.sub(r"`[^`]*`", "", line))})
+    check("live script: every name with an underscore is in a code span", not bare, str(bare))
+    check("live script: code examples are opened and closed", not in_fence
+          and sum(line == "```matlabCodeExample" for line in text_lines) == sum(line == "```" for line in text_lines))
+    lists = [i for i, line in enumerate(prose) if re.match(r"(\d+\.|-) ", line)]
+    check("live script: only the last item of the list ends with a backslash",
+          bool(lists) and prose[lists[-1]].endswith(" \\") and not any(prose[i].endswith("\\") for i in lists[:-1]))
+    sheet_heads = re.findall(r"(?m)^%\[text\] ## Task (\d+)\. (.+)$", sheet)
+    check("live script: one section per task, with the same titles",
+          sheet_heads == [(str(i), t["title"]) for i, t in enumerate(tasks, 1)], f"{len(sheet_heads)} sections")
+    section_starts = [i for i, line in enumerate(body_lines) if line.startswith("%[text] ## Task ")]
+    check("live script: every task heading follows a section break",
+          bool(section_starts) and all(body_lines[i - 1] == "%%" for i in section_starts))
+    sections = ["\n".join(body_lines[a:b]) for a, b in zip(section_starts, section_starts[1:] + [len(body_lines)])]
     out_of_sync = []
-    for t, section in zip(tasks, sections):
-        code = [line.strip() for block in re.findall(r"(?s)```matlab\n(.*?)\n```", section)
-                for line in block.splitlines() if line.strip()]
+    for n, (t, section) in enumerate(zip(tasks, sections), 1):
+        code = [line[len("%[text] "):].strip()
+                for block in re.findall(r"(?s)%\[text\] ```matlabCodeExample\n(.*?)\n%\[text\] ```", section)
+                for line in block.splitlines()]
         labels = ["**Background:**", "**" + second_label(t).strip() + "**", "**Why:**",
                   f"**Your task, in {action_of(t)}:**"]
         places = [section.find(label) for label in labels]
+        has_area = f"% Task {n}: type your code below this line." in section
         if [squeeze(c) for c in code] != [squeeze(c) for c in commands_of(t)] \
-                or -1 in places or places != sorted(places):
+                or -1 in places or places != sorted(places) or has_area != (action_of(t) == "MATLAB"):
             out_of_sync.append(t["id"])
-    check("every guide section has the four parts and exactly the command of its task",
+    check("live script: every section has the four parts, the commands of its task and a code area",
           len(sections) == len(tasks) and not out_of_sync, str(out_of_sync))
-    check("the guide opens with how to work through the mission",
-          "## How to work through this mission" in guide.split("## Task 1.")[0])
-    stray_marks = [line[:40] for line in re.sub(r"(?s)```.*?```", "", "".join(sections)).splitlines()
-                   if re.match(r"(\d+\.|[-+>])\s", line)]
-    check("no wrapped guide line starts like a Markdown list or quote", not stray_marks, str(stray_marks))
-    check("the old MATLAB-script guide is gone", not (RESET / "Sprocket_guide.m").exists())
-    guide_comments = re.sub(r"(?s)```.*?```", "", guide)
+    check("live script: it opens with how to work through the mission",
+          "%[text] ## How to work through this mission" in sheet.split("%[text] ## Task 1.")[0])
+    stale = [name for name in ("Sprocket_guide.m", "Sprocket_guide.md") if (RESET / name).exists()]
+    check("the earlier guide files are gone", not stale, str(stale))
+    guide_comments = "\n".join(prose)
     guide_style = sorted(set(re.findall(
         r"—|–|\s-\s|\b\w+n't\b|\b(?:it|that|you|we|they|he|she|let|here|there|what)'(?:s|ll|re|ve|d)\b",
         guide_comments, re.I)))
-    check("the guide text has no dashes and no contractions (house style)", not guide_style, str(guide_style))
+    check("live script: the text has no dashes and no contractions (house style)", not guide_style, str(guide_style))
     setup_text = (MISSION_DIR / m["setup"]["script"]).read_text(encoding="utf-8")
-    check("setup copies the guide, opens it and leaves guideFile",
-          setup_text.count('"Sprocket_guide.md"') == 2 and "edit(guideFile)" in setup_text
-          and not re.search(r"(?m)^clear .*\bguideFile\b", setup_text))
+    check("setup copies the live script to the learner, opens it and leaves scriptFile",
+          '"sprocket_worksheet.m"' in setup_text and '"sprocket_high_five.m"' in setup_text
+          and "edit(scriptFile)" in setup_text and "guideFile" not in setup_text
+          and not re.search(r"(?m)^clear .*\bscriptFile\b", setup_text))
+    check("the opening says that the learner works in a live script",
+          "live script named sprocket_high_five.m" in " ".join(m["objective"].split()))
     in_simulink = [t["id"] for t in tasks if action_of(t) == "Simulink"]
     check("the mission has tasks in both MATLAB and Simulink", len(in_simulink) >= 1, str(in_simulink))
     mismatch = [t["id"] for t in tasks

@@ -16,7 +16,10 @@ names what to type, and the first hint repeats the function, the reason and
 the exact command. This script writes three things that must always agree:
 
   marketplace/missions/sprocket-high-five/mission.yaml
-  .../task_reset_sprocket-high-five/Sprocket_guide.md     (opened by setup)
+  .../task_reset_sprocket-high-five/sprocket_worksheet.m  (a plain text live script: the
+                                                           instructions and an empty code area
+                                                           per task; setup copies it to the
+                                                           learner as sprocket_high_five.m)
   .../task_reset_sprocket-high-five/reset_tNN.m           (one per task after the first)
 
 Edit the task list in tools/mission_tasks.py, then run:  python3 tools/build_mission.py
@@ -32,8 +35,9 @@ PROJECT = Path(__file__).resolve().parent.parent
 MISSION = PROJECT / "marketplace" / "missions" / "sprocket-high-five"
 RESET = MISSION / "task_reset_sprocket-high-five"
 
-VERSION = "3.0.0"
-GUIDE_NAME = "Sprocket_guide.md"
+VERSION = "3.1.0"
+WORKSHEET_NAME = "sprocket_worksheet.m"     # the plain text live script that ships in the reset folder
+LEARNER_SCRIPT = "sprocket_high_five.m"     # the name of the learner's copy in the workspace folder
 
 HEADER = '''mission_id: "01"
 version: "%(version)s"
@@ -52,15 +56,17 @@ objective: >
   This mission assumes that you know MATLAB: variables, tables, indexing,
   loops and plotting. It assumes no knowledge of Simscape Multibody, robotics
   or CAD, so you are never expected to know one of their functions in advance.
-  How you will work: Ada gives you one small task at a time, %(count)d in all.
-  Every task gives the background, the function that you need, why you need
-  it, and your task. You do the task in MATLAB or in Simulink, then you tell
-  Ada, and she checks your work and gives you the next task. Ask Ada for a
-  hint whenever you want the function explained again with the exact command.
-  The guide Sprocket_guide.md, open in the MATLAB Editor, holds every task.
-  Before you begin, think about your own leg. When you bend your knee, does
-  your foot move up or down?
-supported_matlab_releases: [R2024b, R2025a, R2025b, R2026a, R2026b]
+  How you will work: you work in a live script named sprocket_high_five.m,
+  which opens when the mission starts. It has one section for each task, with
+  the instructions and a place for your code. Ada gives you one task at a
+  time, %(count)d in all. Every task gives the background, the function that
+  you need, why you need it, and your task. You type the commands in the
+  section of the task, run the section, and tell Ada. She checks your work
+  and gives you the next task. Ask Ada for a hint whenever you want the
+  function explained again with the exact commands. Before you begin, think
+  about your own leg. When you bend your knee, does your foot move up or
+  down?
+supported_matlab_releases: [R2026a, R2026b]
 required_capabilities: [MATLAB, Simulink, Simscape, Simscape Multibody, MATLAB MCP, Simulink Agentic Toolkit]
 write_mode: read_inspect
 capability_mode: guided_tutor
@@ -99,9 +105,11 @@ setup:
     geometry, so the import works from any current folder. Leaves two
     variables in the MATLAB workspace: urdfFile, the full path of that URDF
     file, and padPosition, the 1-by-3 point in metres (world frame) that the
-    paw centre must reach. It also copies the guide Sprocket_guide.md into the
-    learner workspace, opens it in the MATLAB Editor, and leaves its full path
-    in the variable guideFile. No model is created and no solver exists yet.
+    paw centre must reach. It also copies the live script sprocket_high_five.m
+    into the learner workspace, opens it in the Live Editor, and leaves its
+    full path in the variable scriptFile. The live script holds the
+    instructions and an empty code area for every task. No model is created
+    and no solver exists yet.
     Construction variables are cleared. Run via run_matlab_file at session
     start.
 
@@ -118,8 +126,8 @@ runtime_validation:
         description: The staged URDF file exists
         code: "isfile(urdfFile)"
       - type: matlab_expression
-        description: The guide was copied into the workspace
-        code: "isfile(guideFile)"
+        description: The live script was copied into the workspace
+        code: "isfile(scriptFile)"
       - type: workspace_absent
         name: cadFolder
   resets:
@@ -203,25 +211,30 @@ discovery:
 #   task, give all four, in that order. Do not reduce them to the task
 #   alone, and never assume that the learner knows which function to use or
 #   where to click.
-# - In your opening, tell the learner how to work: one task at a time, tell
-#   Ada when it is done, ask for a hint to have the function explained again
-#   with the exact commands, and the guide holds every task.
+# - In your opening, tell the learner how to work: in the live script
+#   sprocket_high_five.m, one task at a time. They type the commands in the
+#   section of the task, run the section, and tell Ada. A hint explains the
+#   function again and gives the exact commands.
 # - The first hint of every task repeats the function, the reason and the
 #   exact command. Give it as soon as the learner asks, hesitates or reports
 #   an error. If the learner says that they are new, treat that as a standing
 #   request for the first hint of every task.
-# - The setup script opens a guide named Sprocket_guide.md in the learner's
-#   MATLAB Editor. It is a Markdown file with one section for each task,
-#   under the headings Task 1 to Task %(count)d, with the same four parts and
-#   the same command. Point the learner to the heading of the current task.
-#   The guide is the learner's own copy, in the workspace folder.
-# - The learner may do several tasks from the guide before talking to you.
+# - The setup script opens a live script named sprocket_high_five.m in the
+#   learner's Live Editor. It has one section for each task, under the
+#   headings Task 1 to Task %(count)d, with the same four parts, the same
+#   commands as a code example, and an empty code area. The learner types
+#   the commands there and runs the section. Point the learner to the
+#   heading of the current task.
+# - The live script is the learner's own file, in the workspace folder. It
+#   is saved as plain text, so you can read the learner's code in it when
+#   they ask for help. Do not edit it.
+# - The learner may do several tasks in the live script before talking to you.
 #   When you check a task, also look whether the next tasks are already
 #   done, and move the learner forward without asking them to redo anything.
 # - Keep each check quick. The tasks are small on purpose, and a learner who
 #   waits a long time after every command loses the thread.
-# - In MATLAB means the Command Window. In Simulink means the window that
-#   shows the Sprocket block diagram.
+# - In MATLAB means the code area of the task in the live script. In
+#   Simulink means the window that shows the Sprocket block diagram.
 # - After every solve the learner looks at Sprocket with viewSolution. If
 #   they skip it, remind them, because seeing the pose is the point.
 # - Ask fair questions only. A fair question has one idea, and the learner
@@ -275,32 +288,22 @@ discovery:
 tasks:
 '''
 
-GUIDE_HEADER = '''# Sprocket guide: teach a robot dog to high-five
+WORKSHEET_HEADER = '''%[text] # Teach Sprocket to high-five
+%[text] This live script is where you work through the mission. It has one section for each task, with the instructions and a place for your code. You know MATLAB. Simscape Multibody, robotics and CAD are new to you, so nothing here expects you to know one of their functions in advance.
+%[text] ## How to work through this mission
+%[text] 1. Ada, your tutor, gives you one task at a time. Find the section of that task in this live script.
+%[text] 2. Read the four parts of the task: **Background**, **The function**, **Why** and **Your task**. For a task that you do with the mouse, the second part is **What to look for**.
+%[text] 3. Type the commands in the code area at the end of the section, then run the section with Ctrl+Enter (Cmd+Enter on a Mac). The output appears next to your code.
+%[text] 4. Tell Ada that you are done. She checks your work in MATLAB and gives you the next task.
+%[text] 5. Ask Ada for a hint whenever you like. The first hint of every task explains the function again and gives the exact commands. You can also ask her what any word means.
+%[text] 6. Run each section once, in order. If the solver ends up in a state that you did not intend, run the sections again from Task 3, which creates a fresh solver. \\
+'''
 
-This guide holds every task of the mission. You know MATLAB. Simscape
-Multibody, robotics and CAD are new to you, so nothing here expects you to
-know one of their functions in advance.
-
-## How to work through this mission
-
-1. Ada, your tutor, gives you one task at a time. A task is one idea: one to
-   three commands, or one thing to do with the mouse.
-2. Every task has the same four parts:
-   * **Background.** The story so far and the idea behind the task.
-   * **The function.** What the function is, what goes in and what comes out.
-     For a task that you do with the mouse, this part says what to look for.
-   * **Why.** The reason for this action.
-   * **Your task.** What to do, with the exact command.
-3. Do the task. **In MATLAB** means that you type the command in the Command
-   Window. **In Simulink** means that you use the mouse in the window that
-   shows the Sprocket block diagram.
-4. Tell Ada that you are done. She checks your work in MATLAB and gives you
-   the next task.
-5. Ask Ada for a hint whenever you like. The first hint of every task explains
-   the function again and gives the exact command. You can also ask her what
-   any word means. No question is too basic.
-6. After every solve, look at Sprocket with `viewSolution`. Seeing the pose is
-   the point.
+WORKSHEET_APPENDIX = '''%[appendix]{"version":"1.0"}
+%---
+%[metadata:view]
+%   data: {"layout":"inline"}
+%---
 '''
 
 
@@ -339,11 +342,10 @@ def second_part(t):
     return "What to look for", one_line(t["look"])
 
 
-def task_sentence(t, capital=True):
-    start = "Type" if capital else "type"
+def task_sentence(t):
     if t["where"] == "MATLAB":
-        ending = "." if len(t["commands"]) == 1 else " after each line."
-        return f"{one_line(t['task'])} {start} {shown(t['commands'])} in the Command Window and press Enter{ending}"
+        return (f"{one_line(t['task'])} Type {shown(t['commands'])} in the code area of this task in your "
+                f"live script, then run the section with Ctrl+Enter.")
     return one_line(t["task"])
 
 
@@ -354,7 +356,7 @@ def instruction_paragraphs(n, t):
              f"{label}: {text}",
              f"Why: {one_line(t['why'])}",
              f"Your task, in {t['where']}: {task_sentence(t)}",
-             f"The guide that is open in the MATLAB Editor shows this task under the heading Task {n}."]
+             f"Your live script, {LEARNER_SCRIPT}, has the section for this task under the heading Task {n}."]
     if t.get("question"):
         paras.append(f"Then answer this: {one_line(t['question'])}")
     return paras
@@ -387,28 +389,41 @@ def task_yaml(n, t):
     return "\n".join(out)
 
 
-def md(text, width=78):
-    """One Markdown paragraph, wrapped so that it also reads well as plain text."""
-    lines = textwrap.wrap(protect(text), width=width, break_long_words=False, break_on_hyphens=False)
-    # A wrapped line must not start with something Markdown reads as a list, a quote or a heading.
-    lines = [re.sub(r"^(\d+)\. ", r"\1\\. ", line) for line in lines]
-    lines = [re.sub(r"^([-+*>#]) ", r"\\\1 ", line) for line in lines]
-    return "\n".join(lines).replace("\x00", " ")
+def ls(text):
+    """One paragraph of live script text. The text markup is based on Markdown, where an
+    underscore is formatting, so every name with an underscore goes into a code span."""
+    pieces = re.split(r"(`[^`]*`)", one_line(text))
+    return "".join(p if p.startswith("`") else re.sub(r"\b\w*_\w*", lambda found: f"`{found.group(0)}`", p)
+                   for p in pieces)
 
 
-def guide_section(n, t):
+def worksheet_section(n, t):
+    """One task as a section of a plain text live script: the four parts as text, then a code area.
+    Each paragraph is a single %[text] line, and no blank line may sit between two markup lines."""
     label, text = second_part(t)
     first, *rest = paragraphs(t["background"])
-    out = [f"## Task {n}. {t['title']}", md(f"**Background:** {first}")]
-    out += [md(p) for p in rest]
-    out.append(md(f"**{label}:** {text}"))
-    out.append(md(f"**Why:** {t['why']}"))
-    out.append(md(f"**Your task, in {t['where']}:** {t['task']}"))
+    out = ["%%", f"%[text] ## Task {n}. {ls(t['title'])}", f"%[text] **Background:** {ls(first)}"]
+    out += [f"%[text] {ls(p)}" for p in rest]
+    out.append(f"%[text] **{label}:** {ls(text)}")
+    out.append(f"%[text] **Why:** {ls(t['why'])}")
     if t["where"] == "MATLAB":
-        out.append("```matlab\n" + "\n".join(t["commands"]) + "\n```")
+        out.append(f"%[text] **Your task, in MATLAB:** {ls(t['task'])} Type this in the code area below, "
+                   f"then run the section with Ctrl+Enter.")
+        out.append("%[text] ```matlabCodeExample")
+        out += [f"%[text] {c}" for c in t["commands"]]
+        out.append("%[text] ```")
+    else:
+        out.append(f"%[text] **Your task, in Simulink:** {ls(t['task'])}")
     if t.get("question"):
-        out.append(md(f"**Then tell Ada:** {t['question']}"))
-    return "\n\n".join(out)
+        out.append(f"%[text] **Then tell Ada:** {ls(t['question'])}")
+    if t["where"] == "MATLAB":
+        out += [f"% Task {n}: type your code below this line.", ""]
+    return "\n".join(out)
+
+
+def worksheet(tasks):
+    body = "\n".join(worksheet_section(i, t) for i, t in enumerate(tasks, 1)).rstrip("\n")
+    return WORKSHEET_HEADER + body + "\n\n" + WORKSHEET_APPENDIX     # exactly one blank line before the appendix
 
 
 def reset_script(n, tasks):
@@ -427,9 +442,9 @@ def main():
     body = "\n\n".join(task_yaml(i, t) for i, t in enumerate(TASKS, 1))
     (MISSION / "mission.yaml").write_text(header + body + "\n", encoding="utf-8")
 
-    guide = GUIDE_HEADER + "\n" + "\n\n".join(guide_section(i, t) for i, t in enumerate(TASKS, 1)) + "\n"
-    (RESET / "Sprocket_guide.m").unlink(missing_ok=True)     # the guide was a MATLAB script before version 2.1.0
-    (RESET / GUIDE_NAME).write_text(guide, encoding="utf-8")
+    for old in ("Sprocket_guide.m", "Sprocket_guide.md"):     # earlier forms of the guide
+        (RESET / old).unlink(missing_ok=True)
+    (RESET / WORKSHEET_NAME).write_text(worksheet(TASKS), encoding="utf-8")
 
     for old in RESET.glob("reset_t*.m"):
         old.unlink()
@@ -438,7 +453,7 @@ def main():
 
     in_simulink = sum(t["where"] == "Simulink" for t in TASKS)
     print(f"mission.yaml: version {VERSION}, {count} tasks ({count - in_simulink} in MATLAB, {in_simulink} in Simulink)")
-    print(f"{GUIDE_NAME}: {count} sections")
+    print(f"{WORKSHEET_NAME}: live script with {count} sections, copied to the learner as {LEARNER_SCRIPT}")
     print(f"reset scripts: reset_t02.m to reset_t{count:02d}.m")
 
 

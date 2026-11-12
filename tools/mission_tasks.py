@@ -1,5 +1,5 @@
 """The task list of the Sprocket mission. tools/build_mission.py turns it into
-mission.yaml, Sprocket_guide.md and the reset scripts.
+mission.yaml, the live script worksheet and the reset scripts.
 
 The learner knows MATLAB but not Simscape Multibody, robotics or CAD. A task is
 one idea: one to three commands, or one thing to do with the mouse. A task
@@ -35,7 +35,7 @@ TASKS = [
         function="""smimport imports a robot description into Simscape Multibody. You give it the location of a
         URDF file, and it builds a Simulink model with one block for each part and one block for each joint. The
         mission setup stored the location of the file in the variable urdfFile. After a few seconds, a Simulink
-        window named Sprocket opens.""",
+        window named Sprocket opens. You only need to import once.""",
         why="the solver that you will use works on a Simscape Multibody model, so Sprocket has to become one first.",
         task="import the URDF file of Sprocket.",
         commands=["smimport(urdfFile)"],
