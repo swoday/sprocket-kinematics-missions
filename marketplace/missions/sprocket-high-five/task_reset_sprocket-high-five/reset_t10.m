@@ -1,4 +1,4 @@
-% Ready for Task 10: the state after Task 09 (List the measurements with frameVariables).
+% Ready for Task 10: the state after Task 09 (Measure the paw with addFrameVariables).
 run("reset_t09.m");
 
-F = frameVariables(ks);
+addFrameVariables(ks, "Paw", "translation", mdl + "/World/W", mdl + "/fl_foot/F");

@@ -1,4 +1,4 @@
-% Ready for Task 22: the state after Task 21 (Solve again from the ready stance).
+% Ready for Task 22: the state after Task 21 (Give the search a starting pose with addInitialGuessVariables).
 run("reset_t21.m");
 
-[qHighFive, status] = solve(ks, padPosition, [0 40 -80]);
+addInitialGuessVariables(ks, legIDs);

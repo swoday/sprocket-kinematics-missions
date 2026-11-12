@@ -155,22 +155,30 @@ def main():
     # that instructions carry no commands: the author wants a learner who starts
     # from zero to be helped at every step.
     def action_of(t):
-        found = re.findall(r"Your one action, in (MATLAB|Simulink): ", t["instruction"])
+        found = re.findall(r"Your task, in (MATLAB|Simulink): ", t["instruction"])
         return found[0] if len(found) == 1 else None
 
     def commands_of(t):
-        typed = re.search(r"Your one action, in MATLAB: .*?Type (.*?) in the Command Window and press Enter\.",
+        typed = re.search(r"Your task, in MATLAB: .*?Type (.*?) in the Command Window and press Enter\.",
                           t["instruction"], re.S)
         return re.findall(r"`([^`]+)`", typed.group(1)) if typed else []
 
+    def second_label(t):
+        return "The function: " if action_of(t) == "MATLAB" else "What to look for: "
+
+    # Every task gives the same four parts in the same order, as the house
+    # interaction style does: background, the function, the reason, the task.
     bad_action = []
     for t in tasks:
         where, body = action_of(t), t["instruction"]
-        if where is None or "Why: " not in body \
-                or (where == "MATLAB" and ("What it does: " not in body or not commands_of(t))) \
-                or (where == "Simulink" and "What you see: " not in body):
+        order = [body.find(label) for label in ("Background: ", second_label(t), "Why: ", "Your task, in ")]
+        if where is None or -1 in order or order != sorted(order) or not body.startswith("Background: ") \
+                or (where == "MATLAB" and not commands_of(t)):
             bad_action.append(t["id"])
-    check("every task is one action with where, what it does and why", not bad_action, str(bad_action))
+    check("every task gives background, the function, why and the task, in that order", not bad_action, str(bad_action))
+    check("the mission opens by telling the learner how to work",
+          "How you will work: " in m["objective"] and "This is how you will work." in tasks[0]["instruction"]
+          and "know MATLAB" in m["objective"])
     many = [f"{t['id']}: {len(commands_of(t))}" for t in tasks if len(commands_of(t)) > 2]
     check("no task asks for more than two command lines", not many, str(many))
     untitled = [t["id"] for t in tasks if action_of(t) == "MATLAB"
@@ -182,13 +190,12 @@ def main():
         h = t["hints"]
         if len(h) != 3:
             weak_hints.append(f"{t['id']}: needs 3 hints")
-        elif action_of(t) == "MATLAB":
-            if not (h[0].startswith("In MATLAB, type `") and all(f"`{c}`" in h[0] for c in commands_of(t))
-                    and "What it does: " in h[0] and "Why: " in h[0]):
-                weak_hints.append(t["id"])
-        elif not (h[0].startswith("In Simulink, ") and "What you see: " in h[0] and "Why: " in h[0]):
+        elif not (h[0].startswith(second_label(t)) and "Why: " in h[0]
+                  and f"Your task, in {action_of(t)}: " in h[0]
+                  and all(f"`{c}`" in h[0] for c in commands_of(t))):
             weak_hints.append(t["id"])
-    check("the first hint of every task is the exact command or action", not weak_hints, str(weak_hints))
+    check("the first hint of every task gives the function, the reason and the exact command",
+          not weak_hints, str(weak_hints))
     # The guide that setup opens in the MATLAB Editor does not depend on the tutor.
     guide_path = RESET / "Sprocket_guide.md"
     guide = guide_path.read_text(encoding="utf-8") if guide_path.is_file() else ""
@@ -201,12 +208,17 @@ def main():
     for t, section in zip(tasks, sections):
         code = [line.strip() for block in re.findall(r"(?s)```matlab\n(.*?)\n```", section)
                 for line in block.splitlines() if line.strip()]
+        labels = ["**Background:**", "**" + second_label(t).strip() + "**", "**Why:**",
+                  f"**Your task, in {action_of(t)}:**"]
+        places = [section.find(label) for label in labels]
         if [squeeze(c) for c in code] != [squeeze(c) for c in commands_of(t)] \
-                or f"Your one action, in {action_of(t)}:" not in section:
+                or -1 in places or places != sorted(places):
             out_of_sync.append(t["id"])
-    check("every guide section has exactly the command of its task",
+    check("every guide section has the four parts and exactly the command of its task",
           len(sections) == len(tasks) and not out_of_sync, str(out_of_sync))
-    stray_marks = [line[:40] for line in re.sub(r"(?s)```.*?```", "", guide).splitlines()
+    check("the guide opens with how to work through the mission",
+          "## How to work through this mission" in guide.split("## Task 1.")[0])
+    stray_marks = [line[:40] for line in re.sub(r"(?s)```.*?```", "", "".join(sections)).splitlines()
                    if re.match(r"(\d+\.|[-+>])\s", line)]
     check("no wrapped guide line starts like a Markdown list or quote", not stray_marks, str(stray_marks))
     check("the old MATLAB-script guide is gone", not (RESET / "Sprocket_guide.m").exists())

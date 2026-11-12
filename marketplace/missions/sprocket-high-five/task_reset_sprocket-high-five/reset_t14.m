@@ -1,4 +1,4 @@
-% Ready for Task 14: the state after Task 13 (Solve the forward problem with solve).
+% Ready for Task 14: the state after Task 13 (Make the paw position the output with addOutputVariables).
 run("reset_t13.m");
 
-[pawStance, status] = solve(ks, [0 40 -80]);
+addOutputVariables(ks, pawIDs);

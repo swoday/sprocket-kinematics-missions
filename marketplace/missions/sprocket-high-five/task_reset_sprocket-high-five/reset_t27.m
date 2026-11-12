@@ -1,9 +1,4 @@
-% Ready for Task 27: the state after Task 26 (Solve every point with a for loop).
+% Ready for Task 27: the state after Task 26 (Make room for the answers with zeros).
 run("reset_t26.m");
 
-for k = 1:n
-    qk = solve(ks, pawPath(k, :), guess);
-    qPath(k, :) = qk(:)';
-    guess = qk(:)';
-end
-clear k qk
+qPath = zeros(n, 3); guess = [0 40 -80];

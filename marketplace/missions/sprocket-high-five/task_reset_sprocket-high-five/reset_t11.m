@@ -1,4 +1,4 @@
-% Ready for Task 11: the state after Task 10 (Store the paw IDs in pawIDs).
+% Ready for Task 11: the state after Task 10 (List the measurements with frameVariables).
 run("reset_t10.m");
 
-pawIDs = "Paw.Translation." + ["x"; "y"; "z"];
+F = frameVariables(ks);

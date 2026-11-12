@@ -1,4 +1,4 @@
-% Ready for Task 25: the state after Task 24 (Blend the two paw positions into pawPath).
+% Ready for Task 25: the state after Task 24 (Space the path points with linspace).
 run("reset_t24.m");
 
-pawPath = (1 - s).*pawStance(:)' + s.*padPosition(:)';
+n = 25; s = linspace(0, 1, n)';

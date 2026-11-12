@@ -6,7 +6,7 @@ A marketplace for the [Interactive Missions](https://github.com/matlab/agentic-l
 
 **Teach a Robot Dog to High-Five with KinematicsSolver**
 
-The learner imports Sprocket, a robot dog built as a real CAD assembly, into Simscape Multibody and poses him with `simscape.multibody.KinematicsSolver`. It has 28 small tasks, one action each, and takes about 75 minutes. You need no robotics, CAD or Simscape Multibody background: every task tells the story, explains each new word and asks for one action. Each task says whether to work in MATLAB or in Simulink, what the command does and why you need it. A guide opens in the MATLAB Editor when the mission starts, and you can ask the tutor for a hint at any time: the first hint of every task is the exact command.
+The learner imports Sprocket, a robot dog built as a real CAD assembly, into Simscape Multibody and poses him with `simscape.multibody.KinematicsSolver`. It has 29 small tasks, one action each, and takes about 75 minutes. It is written for people who know MATLAB and have no Simscape Multibody, robotics or CAD background. Every task gives the same four things: the background, the function that you need, why you need it, and your task with the exact command. The first task shows you how to work through the mission. A guide opens in the MATLAB Editor when the mission starts, and you can ask the tutor for a hint at any time: the first hint of every task is the exact command.
 
 **Status: draft.** The URDF imports, the model opens in MATLAB, and the marketplace registers in the app. The ten-row check script and a full play-through with the tutor are still to be confirmed.
 
@@ -62,13 +62,14 @@ To undo it, run `copyfile(backup,skill)`. This changes your local copy of the to
 
 | Tasks | Stage | Idea |
 |---|---|---|
-| 1 to 3 | Import the CAD assembly and look at it | A URDF file and its part files become a Simscape Multibody model |
-| 4 to 6 | Create the solver and find the leg joints | The solver names joint variables itself; they are not the joint names |
-| 7 to 10 | Tell the solver where the paw is | Frame variables measure one frame from another |
-| 11 to 14 | Forward kinematics into the ready stance | Joint angles in, paw position out |
-| 15 to 19 | Inverse kinematics to the pad | Paw position in, joint angles out |
-| 20 to 22 | Pick the pose the real joints can reach | The solver ignores joint limits; an initial guess picks the answer |
-| 23 to 28 | Plan the move from stance to high-five | Solve along a path, each answer seeding the next |
+| 1 | Open the guide and learn how to work | Every task has four parts: background, the function, why, your task |
+| 2 to 4 | Import the CAD assembly and look at it | A URDF file and its part files become a Simscape Multibody model |
+| 5 to 7 | Create the solver and find the leg joints | The solver names joint variables itself; they are not the joint names |
+| 8 to 11 | Tell the solver where the paw is | Frame variables measure one frame from another |
+| 12 to 15 | Forward kinematics into the ready stance | Joint angles in, paw position out |
+| 16 to 20 | Inverse kinematics to the pad | Paw position in, joint angles out |
+| 21 to 23 | Pick the pose the real joints can reach | The solver ignores joint limits; an initial guess picks the answer |
+| 24 to 29 | Plan the move from stance to high-five | Solve along a path, each answer seeding the next |
 
 ## What is in this repository
 

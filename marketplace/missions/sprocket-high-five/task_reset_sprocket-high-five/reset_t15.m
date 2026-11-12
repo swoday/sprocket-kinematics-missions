@@ -1,4 +1,4 @@
-% Ready for Task 15: the state after Task 14 (See the ready stance with viewSolution).
+% Ready for Task 15: the state after Task 14 (Solve the forward problem with solve).
 run("reset_t14.m");
 
-% Task 14 changes nothing in MATLAB.
+[pawStance, status] = solve(ks, [0 40 -80]);

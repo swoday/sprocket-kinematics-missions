@@ -156,17 +156,17 @@ originalPath = path;
 try
     clear ks legIDs pawIDs pawStance qFirst qHighFive qPath
     addpath(missionFolder, resetFolder);
-    run(fullfile(resetFolder, "reset_t28.m"));    % the chain runs reset_t02 to reset_t27 first
+    run(fullfile(resetFolder, "reset_t29.m"));    % the chain runs reset_t02 to reset_t28 first
     path(originalPath);
     ok = isa(ks, "simscape.multibody.KinematicsSolver") && numel(legIDs) == 3 ...
         && angleGap(qHighFive, ref.ik_pad.knee_back.angles_deg) < 0.05 ...
         && norm(pawStance(:) - ref.fk_task.paw_position(:)) < 1e-4 ...
         && isequal(size(qPath), [25 3]) && all(qPath(:, 3) < 0);
-    results(end + 1, :) = {"reset_t28 chain rebuilds solver, stance, high-five pose and path", ok, ...
+    results(end + 1, :) = {"reset_t29 chain rebuilds solver, stance, high-five pose and path", ok, ...
         "qHighFive = [" + join(compose("%.2f", qHighFive(:)'), " ") + "] deg"};
 catch err
     path(originalPath);
-    results(end + 1, :) = {"reset_t28 chain rebuilds solver, stance, high-five pose and path", false, string(err.message)};
+    results(end + 1, :) = {"reset_t29 chain rebuilds solver, stance, high-five pose and path", false, string(err.message)};
 end
 
 %% Report

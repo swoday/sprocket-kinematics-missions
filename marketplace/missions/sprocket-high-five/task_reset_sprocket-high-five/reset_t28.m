@@ -1,4 +1,9 @@
-% Ready for Task 28: the state after Task 27 (Draw the joint angles with plot).
+% Ready for Task 28: the state after Task 27 (Solve every point with a for loop).
 run("reset_t27.m");
 
-figure; plot(s, qPath); legend("abduct", "pitch", "knee");
+for k = 1:n
+    qk = solve(ks, pawPath(k, :), guess);
+    qPath(k, :) = qk(:)';
+    guess = qk(:)';
+end
+clear k qk

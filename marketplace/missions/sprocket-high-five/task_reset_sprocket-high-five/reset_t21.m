@@ -1,4 +1,4 @@
-% Ready for Task 21: the state after Task 20 (Give the search a starting pose with addInitialGuessVariables).
+% Ready for Task 21: the state after Task 20 (Check the knee angle in qFirst against its limit).
 run("reset_t20.m");
 
-addInitialGuessVariables(ks, legIDs);
+% Task 20 changes nothing in MATLAB.

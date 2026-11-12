@@ -1,4 +1,4 @@
-% Ready for Task 12: the state after Task 11 (Make the leg angles the targets with addTargetVariables).
+% Ready for Task 12: the state after Task 11 (Store the paw IDs in pawIDs).
 run("reset_t11.m");
 
-addTargetVariables(ks, legIDs);
+pawIDs = "Paw.Translation." + ["x"; "y"; "z"];

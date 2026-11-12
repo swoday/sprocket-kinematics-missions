@@ -1,4 +1,5 @@
-% Ready for Task 18: the state after Task 17 (Solve the inverse problem with solve).
+% Ready for Task 18: the state after Task 17 (Swap the roles with addTargetVariables and addOutputVariables).
 run("reset_t17.m");
 
-[qFirst, status] = solve(ks, padPosition);
+addTargetVariables(ks, pawIDs);
+addOutputVariables(ks, legIDs);

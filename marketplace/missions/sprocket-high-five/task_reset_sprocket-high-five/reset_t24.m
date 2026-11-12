@@ -1,4 +1,4 @@
-% Ready for Task 24: the state after Task 23 (Space the path points with linspace).
+% Ready for Task 24: the state after Task 23 (See the high-five pose with viewSolution).
 run("reset_t23.m");
 
-n = 25; s = linspace(0, 1, n)';
+% Task 23 changes nothing in MATLAB.
