@@ -158,6 +158,20 @@ def main():
                         and re.search(r"(?m)^2\. ", t["instruction"])
                         and "`" in t["instruction"])]
     check("every instruction has a story and numbered steps with commands", not unguided, str(unguided))
+    # Each step says where to work, what the action does and why.
+    bare_steps = []
+    for t in tasks:
+        steps = re.findall(r"(?ms)^(\d+)\. (.*?)(?=^\d+\. |^Then answer this:|\Z)", t["instruction"])
+        for number, body in steps:
+            if not re.match(r"In (?:MATLAB|Simulink):", body) \
+                    or not re.search(r"What it does:|What you see:|What to check:", body) \
+                    or (int(number) < len(steps) and "Why:" not in body):
+                bare_steps.append(f"{t['id']} step {number}")
+        if len(steps) < 3:
+            bare_steps.append(f"{t['id']}: fewer than 3 steps")
+    check("every step says where to work, what it does and why", not bare_steps, str(bare_steps))
+    uses_simulink = [t["id"] for t in tasks if "In Simulink:" in t["instruction"]]
+    check("the mission has steps in both MATLAB and Simulink", len(uses_simulink) >= 2, str(uses_simulink))
     no_question = [t["id"] for t in tasks
                    if not re.search(r"Then answer this:[^?]*\?", t["instruction"], re.S)
                    or not any(i.get("kind") == "learner_confirmation" for i in t["completion"]["strategy"])]
